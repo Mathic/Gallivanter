@@ -1,0 +1,8 @@
+Gossip: rgb(135, 211, 124)
+Madang: rgb(200, 247, 197)
+
+GRASS = (140, 205, 109)
+
+Dolly: rgb(255, 255, 126)
+Salomie: rgb(255, 236, 139)
+Candy Corn: rgb(254, 241, 96)
