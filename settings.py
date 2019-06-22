@@ -61,11 +61,18 @@ WOLF_IMG = 'wolf2.png'
 TREE_IMG = 'tree.png'
 GRASS_IMG = 'grass.png'
 
+# Background
+BG_IMG = 'background.png'
+
 # inventory
 BACKPACK_IMG = 'backpack.png'
+
+ITEM_IMG = 'items.png'
+
 HOTBAR_IMG = 'hotbar.png'
 HOTBAR_OFFSET = 325
-ITEM_IMG = 'items.png'
+HOTBAR_Y_OFFSET = 9
+HOTBAR_X_OFFSET = 60
 
 # Music and sounds
 VILLAGE_SONG = 'village16.mp3'
@@ -79,3 +86,8 @@ GROUND_IMG_1 = 'tile030.png'
 GROUND_IMG_2 = 'tile008.png'
 GROUND_IMG_3 = 'tile010.png'
 GROUND_IMG_4 = 'tile013.png'
+
+# Button Sprites
+PLAY_BTN = 'play_btn.png'
+EXIT_BTN = 'exit_btn.png'
+RESUME_BTN = 'resume_btn.png'

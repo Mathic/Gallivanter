@@ -5,6 +5,7 @@
 
 import sys
 
+from buttons import *
 from mobs import *
 from resources import *
 from sprites import *
@@ -26,12 +27,17 @@ class Game:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'resources')
         self.map = Map(path.join(img_folder, MAP))
+        self.bg_img = pg.image.load(path.join(img_folder, BG_IMG)).convert_alpha()
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
         self.wall_img = pg.transform.scale(self.wall_img, (64, 64))
+        self.play_btn = pg.image.load(path.join(img_folder, PLAY_BTN)).convert_alpha()
+        self.exit_btn = pg.image.load(path.join(img_folder, EXIT_BTN)).convert_alpha()
+        self.resume_btn = pg.image.load(path.join(img_folder, RESUME_BTN)).convert_alpha()
 
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
+        self.buttons = pg.sprite.Group()
         self.collides = pg.sprite.Group()
         self.items = pg.sprite.Group()
         self.me = pg.sprite.Group()
@@ -43,7 +49,7 @@ class Game:
         self.paused = False
         self.last_hit = 0
         self.inventory_open = False
-        self.inventory = {}
+        self.inventory = Inventory()
 
         player_row = player_col = 0
 
@@ -63,11 +69,14 @@ class Game:
                         Grass(self, col, row)
 
         self.player = Player(self, player_col, player_row)
-        print("Player pos: ", self.player.pos)
+        # print("Player pos: ", self.player.pos)
         # dir = vec(1, 0).rotate(-self.player.dir_angle)
         # self.sword = Sword(self, self.player.pos, dir)
         self.camera = Camera(self.map.width, self.map.height)
         self.hotbar = Hotbar(self, self.player.pos)
+
+        index = self.inventory.add('pelt')
+        self.hotbar.add_to_hotbar(index, 'pelt')
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -88,12 +97,12 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
 
-        attacks = pg.sprite.groupcollide(self.mobs, self.tools, False, False)
+        mobs = pg.sprite.groupcollide(self.mobs, self.tools, False, False)
         now = pg.time.get_ticks()
-        for attack in attacks:
+        for mob in mobs:
             if now - self.last_hit > TOOL_LIFETIME:
                 self.last_hit = now
-                attack.health -= random.randint(10, 25)
+                mob.health -= random.randint(10, 25)
 
         resources = pg.sprite.groupcollide(self.resources, self.tools, False, False)
         now = pg.time.get_ticks()
@@ -102,14 +111,12 @@ class Game:
                 self.last_hit = now
                 resource.health -= 25
 
-        pickups = pg.sprite.spritecollide(self.player, self.items, True)
+        pickups = pg.sprite.spritecollide(self.player, self.items, False)
         for pickup in pickups:
-            if pickup.item_name in self.inventory:
-                self.inventory[pickup.item_name] += 1
-                print(self.inventory)
-            else:
-                self.inventory[pickup.item_name] = 1
-                print(self.inventory)
+            if not pickup.in_hotbar:
+                index = self.inventory.add(pickup.item_name)
+                self.hotbar.add_to_hotbar(index, pickup.item_name)
+                pickup.kill()
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -134,16 +141,20 @@ class Game:
                     self.paused = True
                     self.show_pause_screen()
                 if event.key == pg.K_e:
-                    if self.inventory_open:
-                        print('close inventory')
-                        self.inventory_gui.kill()
-                        self.inventory_open = False
-                        self.paused = False
-                    else:
-                        print('open inventory')
-                        self.inventory_gui = InventoryGUI(self, self.player.pos)
-                        self.inventory_open = True
-                        self.paused = True
+                    self.inventory_open = True
+                    self.paused = True
+                    self.show_inventory_screen()
+                    # if self.inventory_open:
+                    #     print('close inventory')
+                    #     self.inventory_gui.kill()
+                    #     self.inventory_open = False
+                    #     self.paused = False
+                    # else:
+                    #     print('open inventory')
+                        # self.inventory_open = True
+                        # self.paused = True
+                    #     self.inventory_gui = InventoryGUI(self, self.player.pos)
+
 
     def text_objects(self, text, font):
         textSurface = font.render(text, True, BLACK)
@@ -153,14 +164,16 @@ class Game:
         mouse = pg.mouse.get_pos()
         click = pg.mouse.get_pressed()
         if x+w > mouse[0] > x and y+h > mouse[1] > y:
+            print(self)
+            # Button(self, x, y)
             pg.draw.rect(self.screen, ac,(x,y,w,h))
-
             if click[0] == 1 and action != None:
                 action()
         else:
+            # Button(self, x, y)
             pg.draw.rect(self.screen, ic,(x,y,w,h))
 
-        smallText = pg.font.SysFont("comicsansms",20)
+        smallText = pg.font.SysFont("comicsansms", 20)
         textSurf, textRect = self.text_objects(msg, smallText)
         textRect.center = ( (x+(w/2)), (y+(h/2)) )
         self.screen.blit(textSurf, textRect)
@@ -169,20 +182,19 @@ class Game:
         intro = True
         load_music(INTRO_SONG)
         pg.mixer.music.play(-1)
+        self.screen.blit(self.bg_img, (0, 0))
+        Button(self, self.play_btn, 250, 450, self.game_loop)
+        Button(self, self.exit_btn, 650, 450, self.quit)
+        self.buttons.draw(self.screen)
+
         while intro:
             for event in pg.event.get():
-                #print(event)
                 if event.type == pg.QUIT:
                     self.quit()
-
-            self.screen.fill(WHITE)
-            largeText = pg.font.SysFont("comicsansms",115)
-            TextSurf, TextRect = self.text_objects(TITLE, largeText)
-            TextRect.center = ((WIDTH/2),(HEIGHT/4))
-            self.screen.blit(TextSurf, TextRect)
-
-            self.draw_button("GO!",250,450,100,50,GREEN,LIGHTGREEN,self.game_loop)
-            self.draw_button("Quit",650,450,100,50,RED,LIGHTRED,self.quit)
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    for btn in self.buttons:
+                        if btn.clicked(event):
+                            btn.action()
 
             pg.display.update()
             self.clock.tick(15)
@@ -190,6 +202,8 @@ class Game:
     def unpause(self):
         # change_song('village16.wav')
         self.paused = False
+        for btn in self.buttons:
+            btn.kill()
 
     def show_pause_screen(self):
         # change_song('intro16.wav')
@@ -197,6 +211,9 @@ class Game:
         s = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
         s.fill((255,255,255,128))
         self.screen.blit(s, (0, 0))
+        resume_btn = Button(self, self.resume_btn, 250, 450, self.unpause)
+        quit_btn = Button(self, self.exit_btn, 650, 450, self.quit)
+        self.buttons.draw(self.screen)
 
         while self.paused:
             for event in pg.event.get():
@@ -206,14 +223,42 @@ class Game:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
                         self.paused = False
+                        for btn in self.buttons:
+                            btn.kill()
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    for btn in self.buttons:
+                        if btn.clicked(event):
+                            btn.action()
 
-            largeText = pg.font.SysFont("comicsansms",115)
-            TextSurf, TextRect = self.text_objects(TITLE, largeText)
-            TextRect.center = ((WIDTH/2),(HEIGHT/2))
-            self.screen.blit(TextSurf, TextRect)
+            if resume_btn.rect.collidepoint(pg.mouse.get_pos()):
+                resume_btn.image = pg.transform.scale(resume_btn.image, (120, 70))
+            else:
+                resume_btn.image = pg.transform.scale(resume_btn.image, (100, 50))
 
-            self.draw_button("Continue",250,450,100,50,GREEN,LIGHTGREEN,self.unpause)
-            self.draw_button("Quit",650,450,100,50,RED,LIGHTRED,self.quit)
+            pg.display.update()
+            self.clock.tick(15)
+
+    def show_inventory_screen(self):
+        # self.inventory_gui = InventoryGUI(self, self.player.pos)
+        # while self.inventory_open:
+        #     self.inventory_gui.update()
+        s = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+        s.fill((0,0,0,128))
+        self.screen.blit(s, (0, 0))
+        self.inventory_gui = InventoryGUI(self, self.player.pos)
+
+        while self.inventory_open:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.quit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        self.show_pause_screen()
+                    if event.key == pg.K_e:
+                        print('close inventory')
+                        self.inventory_gui.kill()
+                        self.inventory_open = False
+                        self.paused = False
 
             pg.display.update()
             self.clock.tick(15)
@@ -223,11 +268,14 @@ class Game:
 
     def game_loop(self):
         change_song(VILLAGE_SONG)
-        g.new()
+        for btn in self.buttons:
+            btn.kill()
+
         while True:
             g.run()
             g.show_go_screen()
 
 # create the game object
 g = Game()
+g.new()
 g.show_start_screen()
