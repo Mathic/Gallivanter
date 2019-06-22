@@ -50,16 +50,33 @@ P_IDLE_BK = 'idle_bk.png'
 P_IDLE_LF = 'idle_lf.png'
 P_IDLE_RT = 'idle_rt.png'
 
+# Tools and structures
+STRUCTURE_IMG = 'structures.png'
+
+DOOR_IMG = 'ayenne_door.png'
+FLOOR_IMG = 'ayenne_floor.png'
+WALL_IMG = 'ayenne_wall.png'
+CAMPFIRE_IMG = 'campfire.png'
+
+STEAK_IMG = 'steak.png'
+
 TOOL_IMG = 'tools.png'
 SWING_RATE = 375
 TOOL_LIFETIME = 375
 TOOL_SPEED = 10
 
+PICK_IMG = 'pickaxe.png'
+SWORD_IMG = 'sword.png'
+AXE_IMG = 'axe.png'
+
+# Reources and mobs
 MOB_SPEED = 1
 
 WOLF_IMG = 'wolf2.png'
 TREE_IMG = 'tree.png'
 GRASS_IMG = 'grass.png'
+
+TREE_GROW_TIME = 180000
 
 # Background
 BG_IMG = 'background.png'
@@ -79,7 +96,7 @@ VILLAGE_SONG = 'village16.mp3'
 INTRO_SONG = 'intro16.mp3'
 
 #  Wall image
-WALL_IMG = 'tile035.png'
+BOUNDARY_IMG = 'tile035.png'
 
 # Ground images
 GROUND_IMG_1 = 'tile030.png'

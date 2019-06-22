@@ -9,6 +9,15 @@ from settings import *
 
 vec = pg.math.Vector2
 
+def get_plural(word):
+    if word != 'meat':
+        word += 's'
+    # elif word == 'cooked':
+    #     word = 'steaks'
+    else:
+        plural = word
+    return plural
+
 def load_image(name):
     game_folder = path.dirname(__file__)
     img_folder = path.join(game_folder, 'resources')

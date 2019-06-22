@@ -19,6 +19,7 @@ class Tree(pg.sprite.Sprite):
         self.current_frame = 0
         self.current_dir = self.idle
         self.health = 100
+        self.last_chopped = pg.time.get_ticks()
 
     def load_sprites(self):
         sprite_sheet = SpriteSheet(TREE_IMG)
@@ -50,9 +51,20 @@ class Tree(pg.sprite.Sprite):
 
     def update(self):
         if self.chopped:
-            self.image = self.stump[0]
-            self.rect = self.image.get_rect()
-            self.rect.center = self.pos
+            now = pg.time.get_ticks()
+            if now - self.last_chopped > TREE_GROW_TIME:
+                self.chopped = False
+                self.dropped = False
+                self.health = 100
+                self.image = self.idle[self.index]
+                self.rect = self.image.get_rect()
+                self.pos.y -= 38
+                self.pos.x += 6
+                self.rect.center = self.pos
+            else:
+                self.image = self.stump[0]
+                self.rect = self.image.get_rect()
+                self.rect.center = self.pos
         else:
             self.animate(True, self.idle)
 
@@ -66,6 +78,7 @@ class Tree(pg.sprite.Sprite):
             self.image = self.stump[0]
             self.rect = self.image.get_rect()
             self.rect.center = self.pos
+            self.last_chopped = pg.time.get_ticks()
 
 class Grass(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -99,12 +112,12 @@ class Grass(pg.sprite.Sprite):
         image = sprite_sheet.get_image(35, 0, 5, 4)
         self.images.append(image)
 
-class Wall(pg.sprite.Sprite):
+class Boundary(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.walls, game.collides, game.obstacles
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.wall_img
+        self.image = game.boundary_img
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y

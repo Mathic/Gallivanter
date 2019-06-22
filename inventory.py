@@ -5,6 +5,7 @@ class Inventory():
         self.contents = {}
 
     def add(self, name):
+        print(name)
         if name in self.contents:
             self.contents[name] += 1
         else:
@@ -14,7 +15,12 @@ class Inventory():
 
     def remove(self, name):
         if name in self.contents:
-            self.contents[name] -= 1
+            index = list(self.contents.keys()).index(name)
+            if self.contents[name] > 0:
+                self.contents[name] -= 1
+            if self.contents[name] == 0:
+                del self.contents[name]
+            return index
 
 class InventoryGUI(pg.sprite.Sprite):
     def __init__(self, game, pos):
@@ -55,7 +61,7 @@ class Hotbar(pg.sprite.Sprite):
         return entity.rect.move(self.image.topleft)
 
     def add_to_hotbar(self, index, name):
-        # also check if the index is > 8 (max 9 items in hotbar), do not display
+        # if the index is > 8 (max 9 items in hotbar), do not display
         if index > 8:
             pass
 
@@ -72,11 +78,32 @@ class Hotbar(pg.sprite.Sprite):
                 self.displays[name] = Log(self.game, item_pos)
             elif name == 'rock':
                 self.displays[name] = Rock(self.game, item_pos)
+            elif name == 'steak':
+                self.displays[name] = Steak(self.game, item_pos)
+            elif name == 'pickaxe':
+                self.displays[name] = IPickaxe(self.game, item_pos)
+            elif name == 'axe':
+                self.displays[name] = IAxe(self.game, item_pos)
+            elif name == 'sword':
+                self.displays[name] = ISword(self.game, item_pos)
 
             self.displays[name].quantity = 1
 
         self.displays[name].in_hotbar = True
         print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
+
+    def remove_from_hotbar(self, index, name):
+        if index > 8:
+            pass
+
+        if name in self.displays:
+            if self.displays[name].quantity > 0:
+                self.displays[name].quantity -= 1
+                print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
+            if self.displays[name].quantity == 0:
+                self.displays[name].in_hotbar = False
+                self.displays[name].kill()
+                del self.displays[name]
 
     def update(self):
         # move with the player
@@ -143,3 +170,19 @@ class Log(Item):
 class Rock(Item):
     def __init__(self, game, pos):
         super().__init__(game, pos, 'rock', 27)
+
+class Steak(Item):
+    def __init__(self, game, pos):
+        super().__init__(game, pos, 'steak', 36)
+
+class IPickaxe(Item):
+    def __init__(self, game, pos):
+        super().__init__(game, pos, 'pickaxe', 45)
+
+class IAxe(Item):
+    def __init__(self, game, pos):
+        super().__init__(game, pos, 'axe', 54)
+
+class ISword(Item):
+    def __init__(self, game, pos):
+        super().__init__(game, pos, 'sword', 63)

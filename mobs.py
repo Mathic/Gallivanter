@@ -90,5 +90,11 @@ class Wolf(pg.sprite.Sprite):
         self.animate(self.images)
         # print(self.action)
         if self.health <= 0:
-            Meat(self.game, self.pos)
+            drop = random.randint(0, 100)
+            if drop < 50:
+                Pelt(self.game, self.pos + vec(25, 25))
+            if drop < 95:
+                Meat(self.game, self.pos - vec(25, 25))
+                
+            self.game.mob_count -= 1
             self.kill()

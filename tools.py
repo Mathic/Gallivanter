@@ -6,9 +6,7 @@ class Tool(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.count = 0
-        self.groups = game.all_sprites, game.tools
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+
         sprite_sheet = SpriteSheet(TOOL_IMG)
         self.image = sprite_sheet.get_image(offset, 0, 9, 9)
 
