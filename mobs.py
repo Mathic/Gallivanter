@@ -1,5 +1,4 @@
-from helper import *
-from inventory import *
+from items import *
 
 class Mob(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -92,9 +91,9 @@ class Wolf(pg.sprite.Sprite):
         if self.health <= 0:
             drop = random.randint(0, 100)
             if drop < 50:
-                Pelt(self.game, self.pos + vec(25, 25))
+                IPelt(self.game, self.pos + vec(25, 25))
             if drop < 95:
-                Meat(self.game, self.pos - vec(25, 25))
-                
+                IMeat(self.game, self.pos - vec(25, 25))
+
             self.game.mob_count -= 1
             self.kill()

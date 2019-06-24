@@ -6,7 +6,9 @@
 import sys
 
 from buttons import *
+from inventory import *
 from mobs import *
+from recipes import *
 from resources import *
 from sprites import *
 from structures import *
@@ -47,18 +49,6 @@ class Game:
 
         self.campfire_img = pg.image.load(path.join(img_folder, CAMPFIRE_IMG)).convert_alpha()
         self.campfire_img = pg.transform.scale(self.campfire_img, (64, 64))
-
-        self.steak_img = pg.image.load(path.join(img_folder, STEAK_IMG)).convert_alpha()
-        self.steak_img = pg.transform.scale(self.steak_img, (64, 64))
-
-        self.pick_img = pg.image.load(path.join(img_folder, PICK_IMG)).convert_alpha()
-        self.pick_img = pg.transform.scale(self.pick_img, (64, 64))
-
-        self.sword_img = pg.image.load(path.join(img_folder, SWORD_IMG)).convert_alpha()
-        self.sword_img = pg.transform.scale(self.sword_img, (64, 64))
-
-        self.axe_img = pg.image.load(path.join(img_folder, AXE_IMG)).convert_alpha()
-        self.axe_img = pg.transform.scale(self.axe_img, (64, 64))
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -109,7 +99,7 @@ class Game:
                         Grass(self, col, row)
                     elif draw == 25:
                         pos = vec(col, row) * TILESIZE
-                        Rock(self, pos)
+                        IRock(self, pos)
 
         self.player = Player(self, player_col, player_row)
         self.camera = Camera(self.map.width, self.map.height)
@@ -149,7 +139,6 @@ class Game:
                 mob.health -= random.randint(10, 25)
 
         if self.mob_count <= 2:
-            print('spawning new mob')
             index = random.randint(0, len(self.available_tiles) - 1)
             x_pos = self.available_tiles[index][0]
             y_pos = self.available_tiles[index][1]
@@ -205,13 +194,10 @@ class Game:
         mouse = pg.mouse.get_pos()
         click = pg.mouse.get_pressed()
         if x+w > mouse[0] > x and y+h > mouse[1] > y:
-            print(self)
-            # Button(self, x, y)
             pg.draw.rect(self.screen, ac,(x,y,w,h))
             if click[0] == 1 and action != None:
                 action()
         else:
-            # Button(self, x, y)
             pg.draw.rect(self.screen, ic,(x,y,w,h))
 
         smallText = pg.font.SysFont("segoeprint", 20)
@@ -330,19 +316,18 @@ class Game:
         # x_pos += x_offset
         # Button(self, self.campfire_img, x_pos, 200, 64, 64, self.craft)
         if 'log' in self.inventory.contents and 'rock' in self.inventory.contents:
-            Button(self, self.pick_img, x_pos, 200, 64, 64, self.pickaxe)
+            RPickaxe(self, PICK_IMG, x_pos, 200)
             x_pos += x_offset
             if self.inventory.contents['rock'] >= 2:
-                Button(self, self.sword_img, x_pos, 200, 64, 64, self.sword)
+                RSword(self, SWORD_IMG, x_pos, 200)
                 x_pos += x_offset
             if self.inventory.contents['log'] >= 2 and self.inventory.contents['rock'] >= 2:
-                Button(self, self.axe_img, x_pos, 200, 64, 64, self.axe)
+                RAxe(self, AXE_IMG, x_pos, 200)
                 x_pos += x_offset
 
-        print(abs(self.player.pos.x - self.campfire.x * TILESIZE), abs(self.player.pos.y - self.campfire.y * TILESIZE))
         if abs(self.player.pos.x - self.campfire.x * TILESIZE) <= 128 and abs(self.player.pos.y - self.campfire.y * TILESIZE) <= 128 and 'meat' in self.inventory.contents:
-            print('Near campfire')
-            Button(self, self.steak_img, x_pos, 200, 64, 64, self.cook)
+            # Button(self, self.steak_img, x_pos, 200, 64, 64, self.cook)
+            RSteak(self, STEAK_IMG, x_pos, 200)
             x_pos += x_offset
 
         resume_btn = Button(self, self.resume_btn, 850, 650, 150, 75, self.close_inventory)
@@ -355,7 +340,6 @@ class Game:
                     self.quit()
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_e:
-                        print('close inventory')
                         # self.inventory_gui.kill()
                         self.close_inventory()
                 if event.type == pg.MOUSEBUTTONDOWN:
@@ -365,42 +349,6 @@ class Game:
 
             pg.display.update()
             self.clock.tick(15)
-
-    def pickaxe(self):
-        index = self.inventory.remove('log')
-        self.hotbar.remove_from_hotbar(index, 'log')
-        index = self.inventory.remove('rock')
-        self.hotbar.remove_from_hotbar(index, 'rock')
-        IPickaxe(self, (self.player.pos.x - 32, self.player.pos.y + 64))
-        self.close_inventory()
-
-    def axe(self):
-        index = self.inventory.remove('log')
-        self.hotbar.remove_from_hotbar(index, 'log')
-        index = self.inventory.remove('log')
-        self.hotbar.remove_from_hotbar(index, 'log')
-        index = self.inventory.remove('rock')
-        self.hotbar.remove_from_hotbar(index, 'rock')
-        index = self.inventory.remove('rock')
-        self.hotbar.remove_from_hotbar(index, 'rock')
-        IAxe(self, (self.player.pos.x - 32, self.player.pos.y + 64))
-        self.close_inventory()
-
-    def sword(self):
-        index = self.inventory.remove('log')
-        self.hotbar.remove_from_hotbar(index, 'log')
-        index = self.inventory.remove('rock')
-        self.hotbar.remove_from_hotbar(index, 'rock')
-        index = self.inventory.remove('rock')
-        self.hotbar.remove_from_hotbar(index, 'rock')
-        ISword(self, (self.player.pos.x - 32, self.player.pos.y + 64))
-        self.close_inventory()
-
-    def cook(self):
-        index = self.inventory.remove('meat')
-        self.hotbar.remove_from_hotbar(index, 'meat')
-        Steak(self, (self.campfire.x * TILESIZE - 32, self.campfire.y * TILESIZE + 64))
-        self.close_inventory()
 
     def show_go_screen(self):
         pass

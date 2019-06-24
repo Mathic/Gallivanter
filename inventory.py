@@ -1,11 +1,10 @@
-from helper import *
+from items import *
 
 class Inventory():
     def __init__(self):
         self.contents = {}
 
     def add(self, name):
-        print(name)
         if name in self.contents:
             self.contents[name] += 1
         else:
@@ -71,15 +70,15 @@ class Hotbar(pg.sprite.Sprite):
             item_pos = vec(self.pos.x + ((index - 4) * 48), self.pos.y)
 
             if name == 'meat':
-                self.displays[name] = Meat(self.game, item_pos)
+                self.displays[name] = IMeat(self.game, item_pos)
             elif name == 'pelt':
-                self.displays[name] = Pelt(self.game, item_pos)
+                self.displays[name] = IPelt(self.game, item_pos)
             elif name == 'log':
-                self.displays[name] = Log(self.game, item_pos)
+                self.displays[name] = ILog(self.game, item_pos)
             elif name == 'rock':
-                self.displays[name] = Rock(self.game, item_pos)
+                self.displays[name] = IRock(self.game, item_pos)
             elif name == 'steak':
-                self.displays[name] = Steak(self.game, item_pos)
+                self.displays[name] = ISteak(self.game, item_pos)
             elif name == 'pickaxe':
                 self.displays[name] = IPickaxe(self.game, item_pos)
             elif name == 'axe':
@@ -90,7 +89,7 @@ class Hotbar(pg.sprite.Sprite):
             self.displays[name].quantity = 1
 
         self.displays[name].in_hotbar = True
-        print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
+        # print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
 
     def remove_from_hotbar(self, index, name):
         if index > 8:
@@ -99,7 +98,7 @@ class Hotbar(pg.sprite.Sprite):
         if name in self.displays:
             if self.displays[name].quantity > 0:
                 self.displays[name].quantity -= 1
-                print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
+                # print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
             if self.displays[name].quantity == 0:
                 self.displays[name].in_hotbar = False
                 self.displays[name].kill()
@@ -128,61 +127,9 @@ class Hotbar(pg.sprite.Sprite):
 
         self.rect.center = self.pos
 
+        # update the positions of items in the hotbar
         for item in self.displays:
             index = list(self.displays.keys()).index(item)
             new_pos = vec(self.pos.x + ((index - 4) * 48), self.pos.y)
             self.displays[item].pos = new_pos
             self.displays[item].rect.center = self.displays[item].pos
-
-class Item(pg.sprite.Sprite):
-    def __init__(self, game, pos, name, offset):
-        self.groups = game.all_sprites, game.items
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.item_name = name
-        sprite_sheet = SpriteSheet(ITEM_IMG)
-        self.image = sprite_sheet.get_image(offset, 0, 9, 9)
-        self.rect = self.image.get_rect()
-        self.pos = vec(pos) # * TILESIZE
-        self.rect.center = self.pos
-        self.quantity = 0
-        self.in_hotbar = False
-
-    def spawn_point():
-        pass
-
-    # def update(self):
-    #     if self.quantity > 0:
-    #         pass
-
-class Meat(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'meat', 0)
-
-class Pelt(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'pelt', 9)
-
-class Log(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'log', 18)
-
-class Rock(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'rock', 27)
-
-class Steak(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'steak', 36)
-
-class IPickaxe(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'pickaxe', 45)
-
-class IAxe(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'axe', 54)
-
-class ISword(Item):
-    def __init__(self, game, pos):
-        super().__init__(game, pos, 'sword', 63)

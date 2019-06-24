@@ -1,5 +1,3 @@
-from helper import *
-from inventory import *
 from tools import *
 
 class Player(pg.sprite.Sprite):
@@ -60,7 +58,6 @@ class Player(pg.sprite.Sprite):
     def get_keys(self):
         self.vel = vec(0, 0)
         keys = pg.key.get_pressed()
-        # event = pg.event.poll()
         self.animation_frames = 6
         now = pg.time.get_ticks()
         if now - self.last_swing > SWING_RATE and self.game.paused == False:
@@ -95,9 +92,7 @@ class Player(pg.sprite.Sprite):
                 dir = vec(1, 0).rotate(-self.dir_angle)
                 width = self.image.get_size()[0]
                 height = self.image.get_size()[1]
-
-                # print(new_pos)
-                # print(self.image.get_size()[1] / 2)
+                
                 Sword(self.game, self.pos, dir, self.facing, width, height)
 
             if not any(keys):

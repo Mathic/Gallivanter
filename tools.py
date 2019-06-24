@@ -1,5 +1,6 @@
 from helper import *
 
+# Unlike items, tools have collision and are equipped by the player
 class Tool(pg.sprite.Sprite):
     def __init__(self, game, pos, dir, facing, width, height, offset):
         self.groups = game.all_sprites, game.tools
@@ -26,7 +27,6 @@ class Tool(pg.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.vel = dir * TOOL_SPEED
-        # self.pos = vec(pos) # * TILESIZE
         self.rect.center = self.pos
         self.swing_speed = 250
         self.angle = 0

@@ -1,5 +1,4 @@
-from helper import *
-from inventory import *
+from items import *
 
 class Tree(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -69,8 +68,7 @@ class Tree(pg.sprite.Sprite):
             self.animate(True, self.idle)
 
         if self.health <= 0 and not self.dropped:
-            print(self.dropped)
-            Log(self.game, self.pos + vec(50, 50))
+            ILog(self.game, self.pos + vec(50, 50))
             self.chopped = True
             self.dropped = True
             self.pos.y += 38
