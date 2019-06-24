@@ -31,6 +31,7 @@ class Wolf(pg.sprite.Sprite):
         self.actions = ['walk_lf', 'walk_rt', 'walk_fr', 'walk_bk', 'idle']
         self.action_index = 4
         self.action = self.actions[self.action_index]
+        self.last_action = 0
 
     def load_sprites(self):
         sprite_sheet = SpriteSheet(WOLF_IMG)
@@ -43,6 +44,10 @@ class Wolf(pg.sprite.Sprite):
         image = sprite_sheet.get_image(69, 0, 23, 12)
         self.images.append(image)
         image = sprite_sheet.get_image(92, 0, 23, 12)
+        self.images.append(image)
+
+        image = load_image(IDLE_WOLF_IMG)
+        image = pg.transform.scale(image, (23*4, 12*4))
         self.images.append(image)
 
     def get_actions(self):
@@ -73,16 +78,26 @@ class Wolf(pg.sprite.Sprite):
         self.pos += self.vel
 
     def animate(self, dir=[]):
-        self.current_frame += 1
-        self.animation_frames = random.randint(6, 10)
-        if self.current_frame >= self.animation_frames:
-            self.current_frame = 0
-            self.index = (self.index + 1) % len(dir)
+        # use idle image or animations based on actions
+        if self.action == self.actions[4]:
+            self.index = 5
+        else:
+            self.current_frame += 1
+            self.animation_frames = random.randint(6, 10)
+            if self.current_frame >= self.animation_frames:
+                self.current_frame = 0
+                self.index = (self.index + 1) % (len(dir) - 1)
+                self.last_action = self.action
 
+        # check if the index is greater than the array size
         if dir is not None:
             if self.index >= len(dir):
-                self.index = 0
+                self.index = 5
             self.image = dir[self.index]
+
+        # flip image if facing left
+        if self.action == self.actions[0] or self.last_action == self.actions[0]:
+            self.image = pg.transform.flip(self.image, True, False)
 
     def update(self):
         self.get_actions()

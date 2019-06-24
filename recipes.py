@@ -1,12 +1,11 @@
 from buttons import *
+# from helper import *
 from items import *
 
 class Recipe():
     def __init__(self, game, img_name, x, y):
         self.game = game
-        game_folder = path.dirname(__file__)
-        img_folder = path.join(game_folder, 'resources')
-        img = pg.image.load(path.join(img_folder, img_name)).convert_alpha()
+        img = load_image(img_name)
         img = pg.transform.scale(img, (64, 64))
         Button(self.game, img, x, y, 64, 64, self.action)
 

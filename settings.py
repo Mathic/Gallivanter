@@ -73,6 +73,7 @@ AXE_IMG = 'axe.png'
 MOB_SPEED = 1
 
 WOLF_IMG = 'wolf2.png'
+IDLE_WOLF_IMG = 'idle_wolf.png'
 TREE_IMG = 'tree.png'
 GRASS_IMG = 'grass.png'
 
