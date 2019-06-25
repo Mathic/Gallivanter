@@ -44,11 +44,8 @@ class InventoryGUI(pg.sprite.Sprite):
 
 class Hotbar(pg.sprite.Sprite):
     def __init__(self, game, pos):
-        self.groups = game.all_sprites
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        sprite_sheet = SpriteSheet(HOTBAR_IMG)
-        self.image = sprite_sheet.get_image(0, 0, 113, 17)
+        sprite_init(self, game, GUI_LAYER, (game.all_sprites), HOTBAR_IMG)
+        self.image = self.sprite_sheet.get_image(0, 0, 113, 17)
         self.rect = self.image.get_rect()
         self.pos = vec(pos)
         self.pos.y += HOTBAR_OFFSET
@@ -88,7 +85,7 @@ class Hotbar(pg.sprite.Sprite):
 
             self.displays[name].quantity = 1
 
-        self.displays[name].in_hotbar = True
+        self.displays[name].in_inventory = True
         # print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
 
     def remove_from_hotbar(self, index, name):
@@ -100,7 +97,7 @@ class Hotbar(pg.sprite.Sprite):
                 self.displays[name].quantity -= 1
                 # print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))
             if self.displays[name].quantity == 0:
-                self.displays[name].in_hotbar = False
+                self.displays[name].in_inventory = False
                 self.displays[name].kill()
                 del self.displays[name]
 

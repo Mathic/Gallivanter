@@ -37,6 +37,8 @@ def change_song(name):
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
         hits = pg.sprite.spritecollide(sprite, group, False)
+        # for hit in hits:
+        #     print(type(hit).__name__)
         if hits:
             if sprite.vel.x > 0:
                 sprite.pos.x = hits[0].rect.left - sprite.rect.width
@@ -76,6 +78,15 @@ def mob_collision(sprite, group, dir):
             sprite.acc.y = 0
             sprite.rect.y = sprite.pos.y
 
+def sprite_init(self, game, layer, groups, img_name):
+    self._layer = layer
+    self.groups = groups
+    pg.sprite.Sprite.__init__(self, groups)
+    self.game = game
+    if img_name != None:
+        self.sprite_sheet = SpriteSheet(img_name)
+    return self
+
 class SpriteSheet(object):
     """ Class used to grab images out of a sprite sheet. """
 
@@ -88,7 +99,7 @@ class SpriteSheet(object):
         self.sprite_sheet = pg.image.load(path.join(img_folder, file_name)).convert_alpha()
 
 
-    def get_image(self, x, y, width, height):
+    def get_image(self, x, y, width, height, scale=True, color=BLACK):
         """ Grab a single image out of a larger spritesheet
             Pass in the x, y location of the sprite
             and the width and height of the sprite. """
@@ -98,10 +109,13 @@ class SpriteSheet(object):
 
         # Copy the sprite from the large sheet onto the smaller image
         image.blit(self.sprite_sheet, (0, 0), (x, y, width, height))
-        image = pg.transform.scale(image, (width*4, height*4))
+        if scale:
+            image = pg.transform.scale(image, (width*4, height*4))
+        else:
+            image = pg.transform.scale(image, (width*2, height*2))
 
         # Assuming black works as the transparent color
-        image.set_colorkey(BLACK)
+        image.set_colorkey(color)
 
         # Return the image
         return image

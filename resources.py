@@ -2,9 +2,7 @@ from items import *
 
 class Tree(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.resources, game.collides, game.obstacles
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+        sprite_init(self, game, FG_LAYER, (game.all_sprites, game.resources, game.collides, game.obstacles), None)
         self.idle, self.interact, self.stump = ([] for i in range(3))
         self.chopped = False
         self.dropped = False
@@ -37,7 +35,7 @@ class Tree(pg.sprite.Sprite):
 
     def animate(self, idle, dir=[]):
         self.current_frame += 1
-        self.animation_frames = random.randint(500, 1000)
+        self.animation_frames = random.randint(250, 750)
         if self.current_frame >= self.animation_frames:
             self.current_frame = 0
             self.index = (self.index + 1) % len(dir)
@@ -80,9 +78,7 @@ class Tree(pg.sprite.Sprite):
 
 class Grass(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+        sprite_init(self, game, BG_LAYER, (game.all_sprites), None)
         self.images = []
         self.load_sprites()
         self.index = random.randint(0, len(self.images) - 1)
@@ -112,9 +108,7 @@ class Grass(pg.sprite.Sprite):
 
 class Boundary(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.walls, game.collides, game.obstacles
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+        sprite_init(self, game, FG_LAYER, (game.all_sprites, game.walls, game.collides, game.obstacles), None)
         self.image = game.boundary_img
         self.rect = self.image.get_rect()
         self.x = x

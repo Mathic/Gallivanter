@@ -6,6 +6,7 @@
 import sys
 
 from buttons import *
+from interactions import *
 from inventory import *
 from mobs import *
 from recipes import *
@@ -13,9 +14,6 @@ from resources import *
 from sprites import *
 from structures import *
 from tilemap import *
-
-# import pygameMenu
-# from pygameMenu.locals import *  # Import constants (like actions)
 
 class Game:
     def __init__(self):
@@ -52,22 +50,27 @@ class Game:
 
     def new(self):
         # initialize all variables and do all the setup for a new game
-        self.all_sprites = pg.sprite.Group()
-        self.buttons = pg.sprite.Group()
-        self.collides = pg.sprite.Group()
-        self.items = pg.sprite.Group()
-        self.me = pg.sprite.Group()
-        self.mobs = pg.sprite.Group()
-        self.obstacles = pg.sprite.Group()
-        self.resources = pg.sprite.Group()
-        self.structures = pg.sprite.Group()
-        self.tools = pg.sprite.Group()
-        self.walls = pg.sprite.Group()
+        # Not visible: collides, obstacles
+        # Visible: items, tools, mobs, me, structures, walls, buttons
+        self.all_sprites = pg.sprite.LayeredUpdates()
+        self.buttons = pg.sprite.LayeredUpdates()
+        self.collides = pg.sprite.LayeredUpdates()
+        self.items = pg.sprite.LayeredUpdates()
+        self.me = pg.sprite.LayeredUpdates()
+        self.melee = pg.sprite.LayeredUpdates()
+        self.mobs = pg.sprite.LayeredUpdates()
+        self.obstacles = pg.sprite.LayeredUpdates()
+        self.resources = pg.sprite.LayeredUpdates()
+        self.structures = pg.sprite.LayeredUpdates()
+        self.tools = pg.sprite.LayeredUpdates()
+        self.walls = pg.sprite.LayeredUpdates()
+
         self.paused = False
         self.last_hit = 0
         self.inventory_open = False
         self.inventory = Inventory()
         self.mob_count = 0
+        self.rock_count = 0
         self.available_tiles = []
 
         player_row = player_col = 0
@@ -90,27 +93,23 @@ class Game:
                 elif tile == 'C':
                     self.campfire = Campfire(self, col, row)
                 elif tile == 'P':
-                    player_col = col
-                    player_row = row
+                    self.player = Player(self, col, row)
                 else:
                     self.available_tiles.append((col, row))
-                    draw = random.randint(0, 25)
-                    if draw < 2:
+                    draw = random.randint(0, 100)
+                    if draw < 10:
                         Grass(self, col, row)
-                    elif draw == 25:
+                    elif draw == 99:
                         pos = vec(col, row) * TILESIZE
                         IRock(self, pos)
+                        self.rock_count += 1
 
-        self.player = Player(self, player_col, player_row)
         self.camera = Camera(self.map.width, self.map.height)
         self.hotbar = Hotbar(self, self.player.pos)
 
-        # index = self.inventory.add('meat')
-        # self.hotbar.add_to_hotbar(index, 'meat')
-        # print(self.available_tiles)
-
         index = self.inventory.add('sword')
         self.hotbar.add_to_hotbar(index, 'sword')
+        self.total_rocks = self.rock_count
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -131,13 +130,6 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
 
-        mobs = pg.sprite.groupcollide(self.mobs, self.tools, False, False)
-        now = pg.time.get_ticks()
-        for mob in mobs:
-            if now - self.last_hit > TOOL_LIFETIME:
-                self.last_hit = now
-                mob.health -= random.randint(10, 25)
-
         if self.mob_count <= 2:
             index = random.randint(0, len(self.available_tiles) - 1)
             x_pos = self.available_tiles[index][0]
@@ -145,19 +137,17 @@ class Game:
             Wolf(self, x_pos, y_pos)
             self.mob_count += 1
 
-        resources = pg.sprite.groupcollide(self.resources, self.tools, False, False)
-        now = pg.time.get_ticks()
-        for resource in resources:
-            if now - self.last_hit > TOOL_LIFETIME:
-                self.last_hit = now
-                resource.health -= 25
+        if self.rock_count <= self.total_rocks: # temp rock spawn before cave level
+            index = random.randint(0, len(self.available_tiles) - 1)
+            x_pos = self.available_tiles[index][0]
+            y_pos = self.available_tiles[index][1]
+            pos = vec(x_pos, y_pos) * TILESIZE
+            IRock(self, pos)
+            self.rock_count += 1
 
-        pickups = pg.sprite.spritecollide(self.player, self.items, False)
-        for pickup in pickups:
-            if not pickup.in_hotbar:
-                index = self.inventory.add(pickup.item_name)
-                self.hotbar.add_to_hotbar(index, pickup.item_name)
-                pickup.kill()
+        Attack(self, self.resources, self.tools)
+        Attack(self, self.mobs, self.tools)
+        Pickup(self, self.items)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -282,9 +272,9 @@ class Game:
         y_pos = 100
         y_offset = 50
         smallText = pg.font.SysFont("segoeprint", 20)
-        textSurf, textRect = self.text_objects("Inventory contents:", smallText)
-        textRect.center = (100, y_pos + y_offset)
-        self.screen.blit(textSurf, textRect)
+        inv_text, inv_rect = self.text_objects("Inventory contents:", smallText)
+        inv_rect.center = (200, y_pos + y_offset)
+        self.screen.blit(inv_text, inv_rect)
         for item in self.inventory.contents:
             y_pos += y_offset
 
@@ -295,16 +285,17 @@ class Game:
             else:
                 msg = str(self.inventory.contents[item]) + " " + item.capitalize()
             textSurf, textRect = self.text_objects(msg, smallText)
-            textRect.center = (100, y_pos + y_offset)
+            textRect.center = (200, y_pos + y_offset)
+            textRect.left = inv_rect.left
             self.screen.blit(textSurf, textRect)
 
         # Show craftable items
-        x_pos = 320
+        x_pos = 420
         x_offset = 80
 
         smallText = pg.font.SysFont("segoeprint", 20)
         textSurf, textRect = self.text_objects("Craftable items:", smallText)
-        textRect.center = (400, 150)
+        textRect.center = (500, 150)
         self.screen.blit(textSurf, textRect)
 
         # STRUCTURES!!! DO NOT DELETE!!
@@ -326,7 +317,6 @@ class Game:
                 x_pos += x_offset
 
         if abs(self.player.pos.x - self.campfire.x * TILESIZE) <= 128 and abs(self.player.pos.y - self.campfire.y * TILESIZE) <= 128 and 'meat' in self.inventory.contents:
-            # Button(self, self.steak_img, x_pos, 200, 64, 64, self.cook)
             RSteak(self, STEAK_IMG, x_pos, 200)
             x_pos += x_offset
 

@@ -2,9 +2,7 @@ from helper import *
 
 class Structure(pg.sprite.Sprite):
     def __init__(self, game, x , y, offset): # pos, dir, facing, width, height, offset):
-        self.groups = game.all_sprites, game.structures
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+        sprite_init(self, game, STRUCTURE_LAYER, (game.all_sprites, game.structures, game.obstacles), None)
 
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'resources')

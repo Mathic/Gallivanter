@@ -2,17 +2,14 @@ from helper import *
 
 class Item(pg.sprite.Sprite):
     def __init__(self, game, pos, name, offset):
-        self.groups = game.all_sprites, game.items
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.item_name = name
-        sprite_sheet = SpriteSheet(ITEM_IMG)
-        self.image = sprite_sheet.get_image(offset, 0, 9, 9)
+        sprite_init(self, game, GUI_LAYER, (game.all_sprites, game.items), ITEM_IMG)
+        self.image = self.sprite_sheet.get_image(offset, 0, 9, 9)
         self.rect = self.image.get_rect()
         self.pos = vec(pos) # * TILESIZE
         self.rect.center = self.pos
+        self.item_name = name
         self.quantity = 0
-        self.in_hotbar = False
+        self.in_inventory = False
 
     def spawn_point():
         pass

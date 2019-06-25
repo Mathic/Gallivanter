@@ -3,13 +3,8 @@ from helper import *
 # Unlike items, tools have collision and are equipped by the player
 class Tool(pg.sprite.Sprite):
     def __init__(self, game, pos, dir, facing, width, height, offset):
-        self.groups = game.all_sprites, game.tools
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.count = 0
-
-        sprite_sheet = SpriteSheet(TOOL_IMG)
-        self.image = sprite_sheet.get_image(offset, 0, 9, 9)
+        sprite_init(self, game, ITEM_LAYER, (game.all_sprites, game.tools), TOOL_IMG)
+        self.image = self.sprite_sheet.get_image(offset, 0, 9, 9)
 
         if facing == 'left':
             self.pos = vec(pos.x, pos.y + height / 2)
@@ -25,6 +20,7 @@ class Tool(pg.sprite.Sprite):
         if facing == 'front':
             self.image = pg.transform.flip(self.image, False, True)
 
+        self.count = 0
         self.rect = self.image.get_rect()
         self.vel = dir * TOOL_SPEED
         self.rect.center = self.pos

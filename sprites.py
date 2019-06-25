@@ -2,9 +2,7 @@ from tools import *
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.me
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
+        sprite_init(self, game, CHARACTER_LAYER, (game.all_sprites, game.me), None)
         self.front, self.back, self.left, self.right = ([] for i in range(4))
         self.idle_fr, self.idle_bk, self.idle_lf, self.idle_rt = ([] for i in range(4))
         self.walking_sprites(P_WALK_FR, self.front)
@@ -21,13 +19,17 @@ class Player(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
         self.rect.center = self.pos
+
         self.animation_frames = 6
         self.current_frame = 0
         self.current_dir = self.front
         self.dir_angle = 0
-        self.first_time = 0
+        self.first_time = 0 # increments when keys are being pressed
         self.last_swing = pg.time.get_ticks()
         self.facing = 'front'
+        self.health = 100
+        self.width = self.rect.size[0]
+        self.height = self.rect.size[1]
 
     def walking_sprites(self, name, dir=[]):
         sprite_sheet = SpriteSheet(name)
@@ -92,7 +94,7 @@ class Player(pg.sprite.Sprite):
                 dir = vec(1, 0).rotate(-self.dir_angle)
                 width = self.image.get_size()[0]
                 height = self.image.get_size()[1]
-                
+
                 Sword(self.game, self.pos, dir, self.facing, width, height)
 
             if not any(keys):

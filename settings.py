@@ -39,6 +39,15 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 MAP = 'map2.txt'
 
+# Layers
+
+BG_LAYER = 0
+FG_LAYER = 1
+STRUCTURE_LAYER = 2
+ITEM_LAYER = 3
+CHARACTER_LAYER = 4
+GUI_LAYER = 5
+
 # Player settings
 PLAYER_SPEED = 250
 P_WALK_FR = 'walk_fr.png'
@@ -70,14 +79,17 @@ SWORD_IMG = 'sword.png'
 AXE_IMG = 'axe.png'
 
 # Reources and mobs
-MOB_SPEED = 1
+MOB_SPEED = 2
 
-WOLF_IMG = 'wolf2.png'
-IDLE_WOLF_IMG = 'idle_wolf.png'
+# WOLF_IMG = 'wolf2.png'
+# IDLE_WOLF_IMG = 'idle_wolf.png'
+APRIL_WOLF_IMG = 'aprilsilverwolf.png'
 TREE_IMG = 'tree.png'
 GRASS_IMG = 'grass.png'
 
 TREE_GROW_TIME = 180000
+WOOD_CHOP = ['chop-05.wav', 'chop-06.wav', 'chop-07.wav', 'chop-08.wav', 'chop-09.wav', 'chop-10.wav']
+ROCK_MINE = ['chop-01.wav', 'chop-02.wav', 'chop-03.wav', 'chop-04.wav']
 
 # Background
 BG_IMG = 'background.png'
