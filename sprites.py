@@ -1,4 +1,5 @@
 from tools import *
+from interactions import *
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -25,7 +26,7 @@ class Player(pg.sprite.Sprite):
         self.hitbox.center = self.pos
 
         self.rect = self.hitbox
-        self.rect = self.rect.inflate(0, -55)
+        self.rect = self.rect.inflate(0, -36)
         self.rect.center = self.hitbox.center
 
         self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
@@ -35,11 +36,12 @@ class Player(pg.sprite.Sprite):
         self.current_dir = self.front
         self.dir_angle = 0
         self.first_time = 0 # increments by 1 when keys are being pressed
-        self.last_swing = pg.time.get_ticks()
+        self.last_action = pg.time.get_ticks()
         self.facing = 'front'
         self.health = 100
         self.width = self.rect.size[0]
         self.height = self.rect.size[1]
+        self.melee = None
 
     def walking_sprites(self, name, dir=[]):
         sprite_sheet = SpriteSheet(name)
@@ -72,40 +74,59 @@ class Player(pg.sprite.Sprite):
         keys = pg.key.get_pressed()
         self.animation_frames = 6
         now = pg.time.get_ticks()
-        if now - self.last_swing > SWING_RATE and self.game.paused == False:
+        if now - self.last_action > SWING_RATE and self.game.paused == False:
             if keys[pg.K_LEFT] or keys[pg.K_a]:
                 self.animate(False, self.left)
                 self.vel.x = -PLAYER_SPEED
                 self.current_dir = self.left
                 self.facing = 'left'
                 self.dir_angle = -90
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, -self.image.get_width()*2)
             if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 self.animate(False, self.right)
                 self.vel.x = PLAYER_SPEED
                 self.current_dir = self.right
                 self.facing = 'right'
                 self.dir_angle = -90
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, self.image.get_width())
             if keys[pg.K_UP] or keys[pg.K_w]:
                 self.animate(False, self.back)
                 self.vel.y = -PLAYER_SPEED
                 self.current_dir = self.back
                 self.facing = 'back'
                 self.dir_angle = 0
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, -self.image.get_height())
             if keys[pg.K_DOWN] or keys[pg.K_s]:
                 self.animate(False, self.front)
                 self.vel.y = PLAYER_SPEED
                 self.current_dir = self.front
                 self.facing = 'front'
                 self.dir_angle = 180
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.image.get_height())
             if self.vel.x != 0 and self.vel.y != 0:
                 self.vel /= sqrt(2)
             if keys[pg.K_SPACE]:
-                self.last_swing = now
+                self.last_action = now
                 dir = vec(1, 0).rotate(-self.dir_angle)
                 width = self.image.get_size()[0]
                 height = self.image.get_size()[1]
 
-                Sword(self.game, self.pos, dir, self.facing, width, height)
+                # gathering = Attack(self.game, self.game.resources, self.game.tools, dir, self.facing, width, height)
+                # hunting = Attack(self.game, self.game.mobs, self.game.tools, dir, self.facing, width, height)
+                mining = Attack(self.game, self.game.resources, self.melee)
+                hunting = Attack(self.game, self.game.mobs, self.melee)
+
+                target = mining.target_hit()
+                if target != None:
+                    Axe(self.game, self.pos, dir, self.facing, width, height)
+                    target.health -= 25
+
+                target = hunting.target_hit()
+                if target != None:
+                    Sword(self.game, self.pos, dir, self.facing, width, height)
+                    target.health -= 25
+
+                Pickup(self.game, self.game.items, self.melee)
 
             if not any(keys):
                 if self.first_time > 0:

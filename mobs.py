@@ -1,6 +1,7 @@
+from interactions import *
 from items import *
 from settings import *
-from tools import *
+# from tools import *
 
 class Mob(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -77,6 +78,7 @@ class Wolf(pg.sprite.Sprite):
         self.last_bite = pg.time.get_ticks()
         self.width = self.rect.size[0]
         self.height = self.rect.size[1]
+        self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.height)
 
         # print(self.pos, self.rect)
 
@@ -121,42 +123,51 @@ class Wolf(pg.sprite.Sprite):
         self.back.append(image)
 
     def get_actions(self):
+        self.width = self.rect.size[0]
+        self.height = self.rect.size[1]
         now = pg.time.get_ticks()
         self.action_frame += 1
         if self.attacked:
-            dx = self.rect.x - self.game.player.rect.x
-            dy = self.rect.y - self.game.player.rect.y
-            new_move_speed = MOB_SPEED*2
-
-            # if dx <= self.width*2 + self.width/4 or dx >= self.width*2 - self.width/4:
-            if abs(dx) <= (self.width + self.game.player.width)/2:
-                self.vel.x = 0
-            else:
-                self.vel.x = -new_move_speed if dx >= 0 else new_move_speed
-                self.action = self.actions[0] if self.vel.x <= 0 else self.actions[1]
+            dx = self.rect.centerx - self.game.player.rect.centerx
+            dy = self.rect.centery - self.game.player.rect.centery
+            new_move_speed = MOB_SPEED*(3/2)
 
             if abs(dy) <= (self.height + self.game.player.height)/2:
                 self.vel.y = 0
             else:
                 self.vel.y = -new_move_speed if dy >= 0 else new_move_speed
-                self.action = self.actions[3] if self.vel.y <= 0 else self.actions[2]
+                if self.vel.y < 0:
+                    self.action = self.actions[3]
+                    self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, -self.height)
+                elif self.vel.y > 0:
+                    self.action = self.actions[2]
+                    self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.height)
+
+            if abs(dx) <= (self.width + self.game.player.width)/2:
+                self.vel.x = 0
+            else:
+                self.vel.x = -new_move_speed if dx >= 0 else new_move_speed
+                if self.vel.x < 0:
+                    # if dx <= (self.width + self.game.player.width)/2:
+                    #     self.vel.x = 0
+                    # else:
+                    self.action = self.actions[0]
+                    self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, -(self.width/2))
+                elif self.vel.x > 0:
+                    # if dx >= -(self.width + self.game.player.width)/2:
+                    #     self.vel.x = 0
+                    # else:
+                    self.action = self.actions[1]
+                    self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, self.width)
 
             if self.vel == vec(0, 0):
                 self.action = self.actions[4]
-                # self.dir = vec(dx, dy).normalize()
-                if now - self.last_bite > SWING_RATE:
+                if now - self.last_bite > BITE_RATE:
                     self.attack()
-                    self.last_bite = now
             else:
                 self.dir = self.vel.normalize()
 
             mag = vec(dx, dy).magnitude()
-
-            # if self.action_frame >= self.action_frames: # just a print statement
-            #     self.action_frame = 0
-            #     print('moving at speed %s direction %s' %(self.vel, self.dir))
-            #     print('position ', self.pos)
-            #     print('dx %s dy %s x %s y %s' %(dx, dy, (self.width + self.game.player.width), (self.height + self.game.player.height)))
         else:
             if self.action_frame >= self.action_frames:
                 self.action_frame = 0
@@ -191,8 +202,14 @@ class Wolf(pg.sprite.Sprite):
 
     def attack(self):
         # print('ARF! >_<')
-        # Bite(self.game, self.game.player.pos.x, self.game.player.pos.y)
-        Bite(self.game, self.pos, self.dir, 'left', 64, 64)
+        now = pg.time.get_ticks()
+        if self.melee != None: # if there is a melee hitbox
+            attacking = Attack(self.game, self.game.me, self.melee)
+            target = attacking.target_hit()
+            if target != None: # if there is a target in hitbox, reduce its health
+                target.health -= 1
+                print('%s is attacking %s! %d' %(type(self).__name__, 'me', self.game.player.health))
+                self.last_bite = now
 
     def animate(self, dir=[]):
         # use idle image or animations based on actions
@@ -217,23 +234,6 @@ class Wolf(pg.sprite.Sprite):
         pg.draw.rect(self.game.screen, MADANG, self.hitbox)
 
     def update(self):
-        self.game.all_sprites.change_layer(self, self.rect.bottom)
-        self.get_actions()
-        if self.action == self.actions[0]:
-            self.animate(self.left)
-            self.hitbox = self.rect.inflate(-6, 0) # (self.pos.x + 3, self.pos.y, 44, 30)
-        elif self.action == self.actions[1]:
-            self.animate(self.right)
-            self.hitbox = self.rect.inflate(-6, 0) # (self.pos.x + 3, self.pos.y, 44, 30)
-        elif self.action == self.actions[2]:
-            self.animate(self.front)
-            self.hitbox = self.rect.inflate(-24, -2) # (self.pos.x + 12, self.pos.y + 1, 29, 32)
-        elif self.action == self.actions[3]:
-            self.animate(self.back)
-            self.hitbox = self.rect.inflate(-30, 0) # (self.pos.x + 15, self.pos.y, 17, 32)
-        elif self.action == self.actions[4]:
-            self.animate(self.current_dir)
-        # print(self.action)
         if self.health <= 0:
             drop = random.randint(0, 100)
             IMeat(self.game, self.pos - vec(25, 25))
@@ -244,3 +244,23 @@ class Wolf(pg.sprite.Sprite):
 
             self.game.mob_count -= 1
             self.kill()
+        else:
+            if self.action == self.actions[0]:
+                self.animate(self.left)
+                self.hitbox = self.rect.inflate(-6, 0) # (self.pos.x + 3, self.pos.y, 44, 30)
+            elif self.action == self.actions[1]:
+                self.animate(self.right)
+                self.hitbox = self.rect.inflate(-6, 0) # (self.pos.x + 3, self.pos.y, 44, 30)
+            elif self.action == self.actions[2]:
+                self.animate(self.front)
+                self.hitbox = self.rect.inflate(-24, -2) # (self.pos.x + 12, self.pos.y + 1, 29, 32)
+            elif self.action == self.actions[3]:
+                self.animate(self.back)
+                self.hitbox = self.rect.inflate(-30, 0) # (self.pos.x + 15, self.pos.y, 17, 32)
+            elif self.action == self.actions[4]:
+                self.animate(self.current_dir)
+            # print(self.action)
+            self.width = self.rect.size[0]
+            self.height = self.rect.size[1]
+            self.get_actions()
+            self.game.all_sprites.change_layer(self, self.rect.bottom)

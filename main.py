@@ -111,7 +111,7 @@ class Game:
         self.hotbar.add_to_hotbar(index, 'sword')
         self.total_rocks = self.rock_count
 
-        print(self.all_sprites.layers())
+        # print(self.all_sprites.layers())
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -147,10 +147,6 @@ class Game:
             IRock(self, pos)
             self.rock_count += 1
 
-        Attack(self, self.resources, self.tools)
-        Attack(self, self.mobs, self.tools)
-        Pickup(self, self.items)
-
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
             pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
@@ -162,9 +158,14 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            # if hasattr(sprite, 'draw_hitbox') and type(sprite).__name__ == 'Tree':
-            #     sprite.draw_hitbox()
+            if hasattr(sprite, 'draw_hitbox') and type(sprite).__name__ == 'Player':
+                # sprite.draw_hitbox()
+                if sprite.melee != None:
+                    sprite.melee.draw_hitbox(self, DARKGREY)
             # pg.draw.rect(self.screen, YELLOW, sprite.rect)
+            if hasattr(sprite, 'melee') and type(sprite).__name__ != 'Player':
+                if hasattr(sprite.melee, 'draw_hitbox') and sprite.melee != None:
+                    sprite.melee.draw_hitbox(self, RED)
         pg.display.flip()
 
     def events(self):
