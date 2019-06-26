@@ -2,7 +2,7 @@ from tools import *
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        sprite_init(self, game, CHARACTER_LAYER, (game.all_sprites, game.me), None)
+        sprite_init(self, game, y, (game.all_sprites, game.me), None)
         self.front, self.back, self.left, self.right = ([] for i in range(4))
         self.idle_fr, self.idle_bk, self.idle_lf, self.idle_rt = ([] for i in range(4))
         self.walking_sprites(P_WALK_FR, self.front)
@@ -15,16 +15,26 @@ class Player(pg.sprite.Sprite):
         self.idle_sprites(P_IDLE_RT, self.idle_rt)
         self.index = 2
         self.image = self.front[self.index]
-        self.rect = self.image.get_rect()
         self.vel = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
-        self.rect.center = self.pos
+
+        self.x_offset = 16
+        self.y_offset = 36
+
+        self.hitbox = self.image.get_rect()
+        self.hitbox.center = self.pos
+
+        self.rect = self.hitbox
+        self.rect = self.rect.inflate(0, -55)
+        self.rect.center = self.hitbox.center
+
+        self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
 
         self.animation_frames = 6
         self.current_frame = 0
         self.current_dir = self.front
         self.dir_angle = 0
-        self.first_time = 0 # increments when keys are being pressed
+        self.first_time = 0 # increments by 1 when keys are being pressed
         self.last_swing = pg.time.get_ticks()
         self.facing = 'front'
         self.health = 100
@@ -133,10 +143,20 @@ class Player(pg.sprite.Sprite):
 
             self.image = dir[self.index]
 
+    def draw_hitbox(self):
+        pg.draw.rect(self.game.screen, YELLOW, self.hitbox)
+        pg.draw.rect(self.game.screen, MADANG, self.rect)
+
     def update(self):
         self.get_keys()
         self.pos += self.vel * self.game.dt
+
         self.rect.x = self.pos.x
-        collide_with_walls(self, self.game.collides, 'x')
+        detect_collision(self, self.game.collides, 'x')
         self.rect.y = self.pos.y
-        collide_with_walls(self, self.game.collides, 'y')
+        detect_collision(self, self.game.collides, 'y')
+
+        self.hitbox.center = self.pos
+        self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
+
+        self.game.all_sprites.change_layer(self, self.rect.bottom)

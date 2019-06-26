@@ -22,8 +22,10 @@ class Tool(pg.sprite.Sprite):
 
         self.count = 0
         self.rect = self.image.get_rect()
-        self.vel = dir * TOOL_SPEED
         self.rect.center = self.pos
+        self.hitbox = self.rect
+        self.hitbox.center = self.rect.center
+        self.vel = dir * TOOL_SPEED
         self.swing_speed = 250
         self.angle = 0
         self.spawn_time = pg.time.get_ticks()
@@ -34,6 +36,7 @@ class Tool(pg.sprite.Sprite):
     def update(self):
         self.pos += self.vel * self.game.dt
         self.rect.center = self.pos
+        self.hitbox.center = self.rect.center
         if pg.time.get_ticks() - self.spawn_time > TOOL_LIFETIME:
             self.kill()
 

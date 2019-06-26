@@ -32,6 +32,9 @@ class Structure(pg.sprite.Sprite):
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 
+        self.hitbox = self.rect
+        self.hitbox.center = self.rect.center
+
     def update(self):
         pass
 
@@ -41,9 +44,15 @@ class Campfire(Structure):
         self.groups = game.collides
         pg.sprite.Sprite.__init__(self, self.groups)
 
+    def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom)
+
 class Floor(Structure):
     def __init__(self, game, x , y): # pos, dir, facing, width, height, offset):
         super().__init__(game, x, y, 32) # pos, dir, facing, width, height, 96)
+
+    # def update(self):
+    #     self.game.all_sprites.change_layer(self, self.rect.top)
 
 class Wall(Structure):
     def __init__(self, game, x , y): # pos, dir, facing, width, height, offset):
@@ -51,6 +60,12 @@ class Wall(Structure):
         self.groups = game.collides
         pg.sprite.Sprite.__init__(self, self.groups)
 
+    def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom)
+
 class Door(Structure):
     def __init__(self, game, x , y): # pos, dir, facing, width, height, offset):
         super().__init__(game, x, y, 0) # pos, dir, facing, width, height, 96)
+
+    def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom)

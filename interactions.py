@@ -1,15 +1,11 @@
-from os import path
-import os
-import pygame as pg
-import random
-from settings import *
+from helper import *
 
 game_folder = path.dirname(__file__)
 music_folder = path.join(game_folder, 'resources')
 
 class Attack():
     def __init__(self, game, target, weapon):
-        targets = pg.sprite.groupcollide(target, weapon, False, False)
+        targets = pg.sprite.groupcollide(target, weapon, False, False, collided)
         now = pg.time.get_ticks()
         for target in targets:
             if now - game.last_hit > TOOL_LIFETIME:
@@ -24,7 +20,7 @@ class Attack():
 
 class Pickup():
     def __init__(self, game, target):
-        pickups = pg.sprite.spritecollide(game.player, target, False)
+        pickups = pg.sprite.spritecollide(game.player, target, False, collided)
         for pickup in pickups:
             if not pickup.in_inventory:
                 index = game.inventory.add(pickup.item_name)

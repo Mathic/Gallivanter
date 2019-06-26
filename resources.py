@@ -2,16 +2,27 @@ from items import *
 
 class Tree(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        sprite_init(self, game, FG_LAYER, (game.all_sprites, game.resources, game.collides, game.obstacles), None)
+        sprite_init(self, game, y, (game.all_sprites, game.resources, game.obstacles), None)
         self.idle, self.interact, self.stump = ([] for i in range(3))
         self.chopped = False
         self.dropped = False
         self.load_sprites()
         self.index = 0
         self.image = self.idle[self.index]
-        self.rect = self.image.get_rect()
         self.pos = vec(x, y) * TILESIZE
-        self.rect.center = self.pos
+
+        self.x_offset = 0
+        self.y_offset = 35
+
+        self.hitbox = self.image.get_rect()
+        self.hitbox.center = self.pos
+
+        self.rect = self.hitbox
+        self.rect = self.rect.inflate(0, -69)
+        self.rect.center = self.hitbox.center
+
+        self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
+
         self.animation_frames = 25
         self.current_frame = 0
         self.current_dir = self.idle
@@ -46,7 +57,12 @@ class Tree(pg.sprite.Sprite):
 
             self.image = dir[self.index]
 
+    def draw_hitbox(self):
+        pg.draw.rect(self.game.screen, YELLOW, self.hitbox)
+        pg.draw.rect(self.game.screen, MADANG, self.rect)
+
     def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom)
         if self.chopped:
             now = pg.time.get_ticks()
             if now - self.last_chopped > TREE_GROW_TIME:
@@ -54,26 +70,26 @@ class Tree(pg.sprite.Sprite):
                 self.dropped = False
                 self.health = 100
                 self.image = self.idle[self.index]
-                self.rect = self.image.get_rect()
-                self.pos.y -= 38
-                self.pos.x += 6
+                self.pos.y -= self.y_offset*2 + 6
+                self.pos.x -= 8
                 self.rect.center = self.pos
             else:
                 self.image = self.stump[0]
-                self.rect = self.image.get_rect()
-                self.rect.center = self.pos
+
         else:
             self.animate(True, self.idle)
+            self.hitbox.center = self.pos
+            self.rect.center = self.hitbox.center
+            self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
 
         if self.health <= 0 and not self.dropped:
             ILog(self.game, self.pos + vec(50, 50))
             self.chopped = True
             self.dropped = True
-            self.pos.y += 38
-            self.pos.x -= 6
-            self.image = self.stump[0]
-            self.rect = self.image.get_rect()
+            self.pos.y += self.y_offset*2 + 6
+            self.pos.x += 8
             self.rect.center = self.pos
+            self.image = self.stump[0]
             self.last_chopped = pg.time.get_ticks()
 
 class Grass(pg.sprite.Sprite):
@@ -115,3 +131,13 @@ class Boundary(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
+        self.hitbox = self.rect
+        self.hitbox.x = x * TILESIZE
+        self.hitbox.y = y * TILESIZE
+
+    def draw_hitbox(self):
+        pg.draw.rect(self.game.screen, YELLOW, self.rect)
+        pg.draw.rect(self.game.screen, MADANG, self.hitbox)
+
+    def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom)

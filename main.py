@@ -111,6 +111,8 @@ class Game:
         self.hotbar.add_to_hotbar(index, 'sword')
         self.total_rocks = self.rock_count
 
+        print(self.all_sprites.layers())
+
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
@@ -160,6 +162,9 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+            # if hasattr(sprite, 'draw_hitbox') and type(sprite).__name__ == 'Tree':
+            #     sprite.draw_hitbox()
+            # pg.draw.rect(self.screen, YELLOW, sprite.rect)
         pg.display.flip()
 
     def events(self):

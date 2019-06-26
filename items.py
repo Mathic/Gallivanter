@@ -4,9 +4,11 @@ class Item(pg.sprite.Sprite):
     def __init__(self, game, pos, name, offset):
         sprite_init(self, game, GUI_LAYER, (game.all_sprites, game.items), ITEM_IMG)
         self.image = self.sprite_sheet.get_image(offset, 0, 9, 9)
-        self.rect = self.image.get_rect()
         self.pos = vec(pos) # * TILESIZE
+        self.rect = self.image.get_rect()
         self.rect.center = self.pos
+        self.hitbox = self.rect
+        self.hitbox.center = self.rect.center
         self.item_name = name
         self.quantity = 0
         self.in_inventory = False

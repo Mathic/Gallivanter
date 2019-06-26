@@ -41,7 +41,7 @@ class Bite(pg.sprite.Sprite):
 
 class Wolf(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        sprite_init(self, game, CHARACTER_LAYER, (game.all_sprites, game.mobs, game.collides), None)
+        sprite_init(self, game, y, (game.all_sprites, game.mobs, game.collides), None)
         self.front, self.back, self.left, self.right = ([] for i in range(4))
         self.width = 50
         self.height = 35
@@ -49,10 +49,16 @@ class Wolf(pg.sprite.Sprite):
         self.load_sprites()
         self.index = random.randint(0, len(self.front) - 1)
         self.image = self.front[self.index]
-        self.rect = self.image.get_rect()
+
         self.pos = vec(x, y) * TILESIZE
         self.vel = vec(0, 0)
+        self.rect = self.image.get_rect()
         self.rect.center = self.pos
+
+        self.x_offset = 0
+        self.y_offset = 0
+        self.hitbox = self.rect.inflate(-24, -2) # (self.pos.x + 12, self.pos.y + 1, 29, 32)
+        self.hitbox.center = self.rect.center
 
         self.action_frames = 100
         self.action_frame = 0
@@ -71,8 +77,8 @@ class Wolf(pg.sprite.Sprite):
         self.last_bite = pg.time.get_ticks()
         self.width = self.rect.size[0]
         self.height = self.rect.size[1]
-        self.hitbox = (self.pos.x + 12, self.pos.y + 1, 29, 32)
-        print(self.pos, self.rect)
+
+        # print(self.pos, self.rect)
 
     def load_sprites(self):
         transparent = (255, 0, 0)
@@ -171,15 +177,17 @@ class Wolf(pg.sprite.Sprite):
                 self.vel /= sqrt(2)
 
         self.rect.x = self.pos.x
-        collide_with_walls(self, self.game.me, 'x')
+        detect_collision(self, self.game.me, 'x')
         self.rect.y = self.pos.y
-        collide_with_walls(self, self.game.me, 'y')
+        detect_collision(self, self.game.me, 'y')
 
         self.rect.x = self.pos.x
-        collide_with_walls(self, self.game.obstacles, 'x')
+        detect_collision(self, self.game.obstacles, 'x')
         self.rect.y = self.pos.y
-        collide_with_walls(self, self.game.obstacles, 'y')
+        detect_collision(self, self.game.obstacles, 'y')
         self.pos += self.vel
+
+        self.hitbox.center = self.rect.center
 
     def attack(self):
         # print('ARF! >_<')
@@ -205,20 +213,24 @@ class Wolf(pg.sprite.Sprite):
                 self.index = 0
             self.image = dir[self.index]
 
+    def draw_hitbox(self):
+        pg.draw.rect(self.game.screen, MADANG, self.hitbox)
+
     def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom)
         self.get_actions()
         if self.action == self.actions[0]:
             self.animate(self.left)
-            self.hitbox = (self.pos.x + 3, self.pos.y, 44, 30)
+            self.hitbox = self.rect.inflate(-6, 0) # (self.pos.x + 3, self.pos.y, 44, 30)
         elif self.action == self.actions[1]:
             self.animate(self.right)
-            self.hitbox = (self.pos.x + 3, self.pos.y, 44, 30)
+            self.hitbox = self.rect.inflate(-6, 0) # (self.pos.x + 3, self.pos.y, 44, 30)
         elif self.action == self.actions[2]:
             self.animate(self.front)
-            self.hitbox = (self.pos.x + 12, self.pos.y + 1, 29, 32)
+            self.hitbox = self.rect.inflate(-24, -2) # (self.pos.x + 12, self.pos.y + 1, 29, 32)
         elif self.action == self.actions[3]:
             self.animate(self.back)
-            self.hitbox = (self.pos.x + 15, self.pos.y, 17, 32)
+            self.hitbox = self.rect.inflate(-30, 0) # (self.pos.x + 15, self.pos.y, 17, 32)
         elif self.action == self.actions[4]:
             self.animate(self.current_dir)
         # print(self.action)
