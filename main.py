@@ -153,19 +153,24 @@ class Game:
         for y in range(0, HEIGHT, TILESIZE):
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
+    def draw_hitboxes(self, sprite):
+        if hasattr(sprite, 'draw_hitbox') and type(sprite).__name__ == 'Player':
+            sprite.draw_hitbox()
+            if sprite.melee != None:
+                sprite.melee.draw_hitbox(self, DARKGREY)
+        if hasattr(sprite, 'melee') and type(sprite).__name__ != 'Player':
+            if hasattr(sprite.melee, 'draw_hitbox') and sprite.melee != None:
+                sprite.melee.draw_hitbox(self, RED)
+        if hasattr(sprite, 'health_bar'):
+            if sprite.attacked:
+                sprite.health_bar.draw_health(self, sprite.pos.x, sprite.pos.y, GREEN, (sprite.health / sprite.starting_health) * 50)
+
     def draw(self):
         self.screen.fill(BGCOLOR)
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            if hasattr(sprite, 'draw_hitbox') and type(sprite).__name__ == 'Player':
-                # sprite.draw_hitbox()
-                if sprite.melee != None:
-                    sprite.melee.draw_hitbox(self, DARKGREY)
-            # pg.draw.rect(self.screen, YELLOW, sprite.rect)
-            if hasattr(sprite, 'melee') and type(sprite).__name__ != 'Player':
-                if hasattr(sprite.melee, 'draw_hitbox') and sprite.melee != None:
-                    sprite.melee.draw_hitbox(self, RED)
+            # self.draw_hitboxes(sprite)
         pg.display.flip()
 
     def events(self):
@@ -177,7 +182,7 @@ class Game:
                 if event.key == pg.K_ESCAPE:
                     self.paused = True
                     self.show_pause_screen()
-                if event.key == pg.K_e:
+                if event.key == pg.K_q:
                     self.inventory_open = True
                     self.paused = True
                     self.show_inventory_screen()
@@ -341,6 +346,7 @@ class Game:
                 if event.type == pg.MOUSEBUTTONDOWN:
                     for btn in self.buttons:
                         if btn.clicked(event):
+                            self.close_inventory()
                             btn.action()
 
             pg.display.update()

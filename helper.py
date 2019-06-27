@@ -8,6 +8,9 @@ from os import path
 from settings import *
 
 vec = pg.math.Vector2
+game_folder = path.dirname(__file__)
+music_folder = path.join(game_folder, 'resources')
+img_folder = path.join(game_folder, 'resources')
 
 def get_plural(word):
     if word != 'meat':
@@ -19,20 +22,22 @@ def get_plural(word):
     return plural
 
 def load_image(name):
-    game_folder = path.dirname(__file__)
-    img_folder = path.join(game_folder, 'resources')
     image = pg.image.load(path.join(img_folder, name)).convert_alpha()
     return image
 
 def load_music(name):
-    game_folder = path.dirname(__file__)
-    music_folder = path.join(game_folder, 'resources')
     pg.mixer.music.load(path.join(music_folder, name))
 
 def change_song(name):
     pg.mixer.music.pause()
     load_music(name)
     pg.mixer.music.play(-1)
+
+def play_sound(name, channel=0, volume=1.0):
+    effect = pg.mixer.Sound(path.join(music_folder, name))
+    effect.set_volume(volume)
+    channel = pg.mixer.Channel(channel)
+    channel.play(effect)
 
 # This callback function is passed as the `collided`argument
 # to pygame.sprite.spritecollide or groupcollide.

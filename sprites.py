@@ -105,26 +105,29 @@ class Player(pg.sprite.Sprite):
                 self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.image.get_height())
             if self.vel.x != 0 and self.vel.y != 0:
                 self.vel /= sqrt(2)
-            if keys[pg.K_SPACE]:
+            if keys[pg.K_e]:
                 self.last_action = now
                 dir = vec(1, 0).rotate(-self.dir_angle)
                 width = self.image.get_size()[0]
                 height = self.image.get_size()[1]
 
-                # gathering = Attack(self.game, self.game.resources, self.game.tools, dir, self.facing, width, height)
-                # hunting = Attack(self.game, self.game.mobs, self.game.tools, dir, self.facing, width, height)
                 mining = Attack(self.game, self.game.resources, self.melee)
                 hunting = Attack(self.game, self.game.mobs, self.melee)
 
                 target = mining.target_hit()
                 if target != None:
-                    Axe(self.game, self.pos, dir, self.facing, width, height)
-                    target.health -= 25
+                    if type(target).__name__ == 'Tree' and not target.chopped:
+                        Axe(self.game, self.pos, dir, self.facing, width, height)
+                        target.health -= 25
 
                 target = hunting.target_hit()
                 if target != None:
                     Sword(self.game, self.pos, dir, self.facing, width, height)
+                    play_sound(PUNCH)
                     target.health -= 25
+                    # print(target.pos)
+                    # print(target.health_bar.bar)
+                    target.health_bar.first_time = 0
 
                 Pickup(self.game, self.game.items, self.melee)
 
@@ -137,6 +140,9 @@ class Player(pg.sprite.Sprite):
                 self.current_frame += 1
             else:
                 self.first_time += 1
+                # if self.first_time == 1:
+                #     print(self.pos)
+                #     print(self.rect)
                 self.current_frame += 1
 
     def animate(self, idle, dir=[]):
@@ -165,8 +171,8 @@ class Player(pg.sprite.Sprite):
             self.image = dir[self.index]
 
     def draw_hitbox(self):
-        pg.draw.rect(self.game.screen, YELLOW, self.hitbox)
-        pg.draw.rect(self.game.screen, MADANG, self.rect)
+        pg.draw.rect(self.game.screen, YELLOW, self.hitbox, 2)
+        pg.draw.rect(self.game.screen, MADANG, self.rect, 2)
 
     def update(self):
         self.get_keys()

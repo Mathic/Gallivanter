@@ -1,3 +1,5 @@
+from sounds import *
+
 # colors
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)
@@ -89,8 +91,6 @@ TREE_IMG = 'tree.png'
 GRASS_IMG = 'grass.png'
 
 TREE_GROW_TIME = 180000
-WOOD_CHOP = ['chop-05.wav', 'chop-06.wav', 'chop-07.wav', 'chop-08.wav', 'chop-09.wav', 'chop-10.wav']
-ROCK_MINE = ['chop-01.wav', 'chop-02.wav', 'chop-03.wav', 'chop-04.wav']
 
 # Background
 BG_IMG = 'background.png'
@@ -104,10 +104,6 @@ HOTBAR_IMG = 'hotbar.png'
 HOTBAR_OFFSET = 325
 HOTBAR_Y_OFFSET = 9
 HOTBAR_X_OFFSET = 60
-
-# Music and sounds
-VILLAGE_SONG = 'village16.mp3'
-INTRO_SONG = 'intro16.mp3'
 
 #  Wall image
 BOUNDARY_IMG = 'tile035.png'

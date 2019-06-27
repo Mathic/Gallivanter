@@ -72,6 +72,8 @@ class Wolf(pg.sprite.Sprite):
         self.current_frame = 0
         self.current_dir = self.front
         self.health = random.randint(50, 100)
+        self.starting_health = self.health
+        self.health_bar = HealthBar(game, self.pos.x, self.pos.y, self.health / self.starting_health * 50)
 
         self.attacked = False
         self.dir = vec(0, 0)
@@ -209,6 +211,8 @@ class Wolf(pg.sprite.Sprite):
             if target != None: # if there is a target in hitbox, reduce its health
                 target.health -= 1
                 print('%s is attacking %s! %d' %(type(self).__name__, 'me', self.game.player.health))
+                play_sound(PAINB, 0, 0.5)
+                play_sound(GRUNT, 1)
                 self.last_bite = now
 
     def animate(self, dir=[]):
@@ -231,7 +235,7 @@ class Wolf(pg.sprite.Sprite):
             self.image = dir[self.index]
 
     def draw_hitbox(self):
-        pg.draw.rect(self.game.screen, MADANG, self.hitbox)
+        pg.draw.rect(self.game.screen, MADANG, self.hitbox, 2)
 
     def update(self):
         if self.health <= 0:
