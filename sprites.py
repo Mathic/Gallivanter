@@ -106,29 +106,6 @@ class Player(pg.sprite.Sprite):
             if self.vel.x != 0 and self.vel.y != 0:
                 self.vel /= sqrt(2)
             if keys[pg.K_e]:
-                self.last_action = now
-                dir = vec(1, 0).rotate(-self.dir_angle)
-                width = self.image.get_size()[0]
-                height = self.image.get_size()[1]
-
-                mining = Attack(self.game, self.game.resources, self.melee)
-                hunting = Attack(self.game, self.game.mobs, self.melee)
-
-                target = mining.target_hit()
-                if target != None:
-                    if type(target).__name__ == 'Tree' and not target.chopped:
-                        Axe(self.game, self.pos, dir, self.facing, width, height)
-                        target.health -= 25
-
-                target = hunting.target_hit()
-                if target != None:
-                    Sword(self.game, self.pos, dir, self.facing, width, height)
-                    play_sound(PUNCH)
-                    target.health -= 25
-                    # print(target.pos)
-                    # print(target.health_bar.bar)
-                    target.health_bar.first_time = 0
-
                 Pickup(self.game, self.game.items, self.melee)
 
             if not any(keys):
@@ -140,9 +117,6 @@ class Player(pg.sprite.Sprite):
                 self.current_frame += 1
             else:
                 self.first_time += 1
-                # if self.first_time == 1:
-                #     print(self.pos)
-                #     print(self.rect)
                 self.current_frame += 1
 
     def animate(self, idle, dir=[]):

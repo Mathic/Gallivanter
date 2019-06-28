@@ -29,6 +29,7 @@ class Structure(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
+        self.pos = vec(x, y) * TILESIZE
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 

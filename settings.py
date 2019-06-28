@@ -34,6 +34,9 @@ FPS = 60
 TITLE = 'Gallivanter'
 BGCOLOR = GRASS
 
+LEFT_CLICK = 1
+RIGHT_CLICK = 3
+
 # tilesize
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
@@ -42,7 +45,6 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 MAP = 'map2.txt'
 
 # Layers
-
 BG_LAYER = 0
 FG_LAYER = 1
 STRUCTURE_LAYER = 2
@@ -117,4 +119,6 @@ GROUND_IMG_4 = 'tile013.png'
 # Button Sprites
 PLAY_BTN = 'play_btn.png'
 EXIT_BTN = 'exit_btn.png'
+MUTE_BTN = 'mute_btn.png'
+UNMUTE_BTN = 'mute_btn.png'
 RESUME_BTN = 'resume_btn.png'

@@ -34,6 +34,8 @@ class Game:
         self.boundary_img = pg.transform.scale(self.boundary_img, (64, 64))
         self.play_btn = pg.image.load(path.join(img_folder, PLAY_BTN)).convert_alpha()
         self.exit_btn = pg.image.load(path.join(img_folder, EXIT_BTN)).convert_alpha()
+        self.mute_btn = pg.image.load(path.join(img_folder, MUTE_BTN)).convert_alpha()
+        self.unmute_btn = pg.image.load(path.join(img_folder, UNMUTE_BTN)).convert_alpha()
         self.resume_btn = pg.image.load(path.join(img_folder, RESUME_BTN)).convert_alpha()
 
         self.door_img = pg.image.load(path.join(img_folder, DOOR_IMG)).convert_alpha()
@@ -66,32 +68,42 @@ class Game:
         self.walls = pg.sprite.LayeredUpdates()
 
         self.paused = False
+        self.muted = False
+        self.crafting = False
         self.last_hit = 0
         self.inventory_open = False
         self.inventory = Inventory()
         self.mob_count = 0
         self.rock_count = 0
         self.available_tiles = []
+        # self.wall_tiles = []
+        self.grid = WeightedGrid(self, WIDTH, HEIGHT)
 
         player_row = player_col = 0
 
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
+                # self.graph.append(vec(row, col))
                 if tile == '1':
                     Boundary(self, col, row)
+                    self.grid.walls.append(vec(row, col))
                 elif tile == 'M':
                     Wolf(self, col, row)
                     self.mob_count += 1
                 elif tile == 'T':
                     Tree(self, col, row)
+                    self.grid.walls.append(vec(row, col))
                 elif tile == 'F':
                     Floor(self, col, row)
                 elif tile == 'D':
                     Door(self, col, row)
                 elif tile == 'W':
                     Wall(self, col, row)
+                    # self.wall_tiles.append(vec(row, col))
+                    self.grid.walls.append(vec(row, col))
                 elif tile == 'C':
                     self.campfire = Campfire(self, col, row)
+                    self.grid.walls.append(vec(row, col))
                 elif tile == 'P':
                     self.player = Player(self, col, row)
                 else:
@@ -112,6 +124,7 @@ class Game:
         self.total_rocks = self.rock_count
 
         # print(self.all_sprites.layers())
+        # print(list(self.available_tiles))
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -170,7 +183,7 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            # self.draw_hitboxes(sprite)
+            self.draw_hitboxes(sprite)
         pg.display.flip()
 
     def events(self):
@@ -186,6 +199,30 @@ class Game:
                     self.inventory_open = True
                     self.paused = True
                     self.show_inventory_screen()
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if event.button == LEFT_CLICK:
+                    now = pg.time.get_ticks()
+                    if now - self.player.last_action > SWING_RATE and self.paused == False:
+                        self.player.last_action = now
+                        dir = vec(1, 0).rotate(-self.player.dir_angle)
+                        width = self.player.image.get_size()[0]
+                        height = self.player.image.get_size()[1]
+
+                        mining = Attack(self, self.resources, self.player.melee)
+                        hunting = Attack(self, self.mobs, self.player.melee)
+
+                        target = mining.target_hit()
+                        if target != None:
+                            if type(target).__name__ == 'Tree' and not target.chopped:
+                                Axe(self, self.player.pos, dir, self.player.facing, width, height)
+                                target.health -= 25
+
+                        target = hunting.target_hit()
+                        if target != None:
+                            Sword(self, self.player.pos, dir, self.player.facing, width, height)
+                            play_sound(PUNCH)
+                            target.health -= 25
+                            target.health_bar.first_time = 0
 
     def text_objects(self, text, font):
         textSurface = font.render(text, True, BLACK)
@@ -211,8 +248,12 @@ class Game:
         load_music(INTRO_SONG)
         pg.mixer.music.play(-1)
         self.screen.blit(self.bg_img, (0, 0))
-        Button(self, self.play_btn, 250, 450, 150, 75, self.game_loop)
-        Button(self, self.exit_btn, 650, 450, 150, 75, self.quit)
+        Button(self, self.play_btn, WIDTH - 200, 150, 150, 75, self.game_loop)
+        Button(self, self.exit_btn, WIDTH - 200, 250, 150, 75, self.quit)
+        if self.muted:
+            self.mutebutton = Button(self, self.unmute_btn, WIDTH - 200, 350, 150, 75, self.unmute)
+        else:
+            self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.mute)
         self.buttons.draw(self.screen)
 
         while intro:
@@ -220,15 +261,17 @@ class Game:
                 if event.type == pg.QUIT:
                     self.quit()
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    for btn in self.buttons:
-                        if btn.clicked(event):
-                            btn.action()
+                    if event.button == LEFT_CLICK:
+                        for btn in self.buttons:
+                            if btn.clicked(event):
+                                btn.action()
 
             pg.display.update()
             self.clock.tick(15)
 
     def unpause(self):
-        # change_song('village16.wav')
+        if not self.muted:
+            change_song(VILLAGE_SONG)
         self.paused = False
         for btn in self.buttons:
             btn.kill()
@@ -237,17 +280,41 @@ class Game:
         # change_song('village16.wav')
         self.paused = False
         self.inventory_open = False
+        self.crafting = False
         for btn in self.buttons:
             btn.kill()
 
+    def mute(self):
+        self.muted = True
+        pg.mixer.music.fadeout(200)
+        self.mutebutton.kill()
+        self.mutebutton = Button(self, self.unmute_btn, WIDTH - 200, 350, 150, 75, self.unmute)
+        pg.display.update()
+        self.clock.tick(15)
+
+    def unmute(self):
+        self.muted = False
+        pg.mixer.music.play()
+        self.mutebutton.kill()
+        self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.mute)
+        pg.display.update()
+        self.clock.tick(15)
+
     def show_pause_screen(self):
-        # change_song('intro16.wav')
+        if not self.muted:
+            change_song(INTRO_SONG)
         # Translucent pause menu
         s = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
         s.fill((255,255,255,128))
         self.screen.blit(s, (0, 0))
-        resume_btn = Button(self, self.resume_btn, 250, 450, 150, 75, self.unpause)
-        quit_btn = Button(self, self.exit_btn, 650, 450, 150, 75, self.quit)
+        # resume_btn = Button(self, self.play_btn, 250, 450, 150, 75, self.unpause)
+        # quit_btn = Button(self, self.exit_btn, 650, 450, 150, 75, self.quit)
+        resume_btn = Button(self, self.resume_btn, WIDTH - 200, 150, 150, 75, self.unpause)
+        quit_btn = Button(self, self.exit_btn, WIDTH - 200, 250, 150, 75, self.quit)
+        if self.muted:
+            self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.unmute)
+        else:
+            self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.mute)
         self.buttons.draw(self.screen)
 
         while self.paused:
@@ -261,9 +328,10 @@ class Game:
                         for btn in self.buttons:
                             btn.kill()
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    for btn in self.buttons:
-                        if btn.clicked(event):
-                            btn.action()
+                    if event.button == LEFT_CLICK:
+                        for btn in self.buttons:
+                            if btn.clicked(event):
+                                btn.action()
 
             if resume_btn.rect.collidepoint(pg.mouse.get_pos()):
                 resume_btn.image = pg.transform.scale(resume_btn.image, (120, 70))
@@ -344,10 +412,11 @@ class Game:
                         # self.inventory_gui.kill()
                         self.close_inventory()
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    for btn in self.buttons:
-                        if btn.clicked(event):
-                            self.close_inventory()
-                            btn.action()
+                    if event.button == LEFT_CLICK:
+                        for btn in self.buttons:
+                            if btn.clicked(event) and self.crafting == False:
+                                self.close_inventory()
+                                btn.action()
 
             pg.display.update()
             self.clock.tick(15)
@@ -356,7 +425,8 @@ class Game:
         pass
 
     def game_loop(self):
-        change_song(VILLAGE_SONG)
+        if not self.muted:
+            change_song(VILLAGE_SONG)
         for btn in self.buttons:
             btn.kill()
 

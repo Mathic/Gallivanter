@@ -10,6 +10,7 @@ class Recipe():
         Button(self.game, img, x, y, 64, 64, self.action)
 
     def action(self, sound):
+        self.game.crafting = True
         for item in self.remove:
             for i in range(self.remove[item]):
                 index = self.game.inventory.remove(item)

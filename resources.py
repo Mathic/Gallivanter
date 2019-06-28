@@ -124,7 +124,7 @@ class Grass(pg.sprite.Sprite):
 
 class Boundary(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        sprite_init(self, game, FG_LAYER, (game.all_sprites, game.walls, game.collides, game.obstacles), None)
+        sprite_init(self, game, y, (game.all_sprites, game.walls, game.collides, game.obstacles), None)
         self.image = game.boundary_img
         self.rect = self.image.get_rect()
         self.x = x
@@ -140,4 +140,5 @@ class Boundary(pg.sprite.Sprite):
         pg.draw.rect(self.game.screen, MADANG, self.hitbox)
 
     def update(self):
-        self.game.all_sprites.change_layer(self, self.rect.bottom)
+        # self.game.all_sprites.change_layer(self, self.rect.bottom)
+        pass

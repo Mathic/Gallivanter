@@ -1,6 +1,6 @@
 from interactions import *
 from items import *
-from settings import *
+from helper import *
 # from tools import *
 
 class Mob(pg.sprite.Sprite):
@@ -71,15 +71,17 @@ class Wolf(pg.sprite.Sprite):
         self.animation_frames = 6
         self.current_frame = 0
         self.current_dir = self.front
-        self.health = random.randint(50, 100)
+        self.health = random.randint(100, 300)
         self.starting_health = self.health
         self.health_bar = HealthBar(game, self.pos.x, self.pos.y, self.health / self.starting_health * 50)
 
+        self.width = self.rect.size[0]
+        self.height = self.rect.size[1]
+
+        # Attacking variables
         self.attacked = False
         self.dir = vec(0, 0)
         self.last_bite = pg.time.get_ticks()
-        self.width = self.rect.size[0]
-        self.height = self.rect.size[1]
         self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.height)
 
         # print(self.pos, self.rect)
@@ -150,19 +152,28 @@ class Wolf(pg.sprite.Sprite):
             else:
                 self.vel.x = -new_move_speed if dx >= 0 else new_move_speed
                 if self.vel.x < 0:
-                    # if dx <= (self.width + self.game.player.width)/2:
-                    #     self.vel.x = 0
-                    # else:
                     self.action = self.actions[0]
                     self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, -(self.width/2))
                 elif self.vel.x > 0:
-                    # if dx >= -(self.width + self.game.player.width)/2:
-                    #     self.vel.x = 0
-                    # else:
                     self.action = self.actions[1]
                     self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, self.width)
 
             if self.vel == vec(0, 0):
+                self.dir = vec(dx, dy).normalize()
+                if abs(self.dir.x) > abs(self.dir.y):
+                    if self.dir.x < 0:
+                        self.action = self.actions[1]
+                        self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, self.width)
+                    elif self.dir.x > 0:
+                        self.action = self.actions[0]
+                        self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, -(self.width/2))
+                else:
+                    if self.dir.y < 0:
+                        self.action = self.actions[2]
+                        self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.height)
+                    elif self.dir.y > 0:
+                        self.action = self.actions[3]
+                        self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, -self.height)
                 self.action = self.actions[4]
                 if now - self.last_bite > BITE_RATE:
                     self.attack()
@@ -203,13 +214,12 @@ class Wolf(pg.sprite.Sprite):
         self.hitbox.center = self.rect.center
 
     def attack(self):
-        # print('ARF! >_<')
         now = pg.time.get_ticks()
         if self.melee != None: # if there is a melee hitbox
             attacking = Attack(self.game, self.game.me, self.melee)
             target = attacking.target_hit()
             if target != None: # if there is a target in hitbox, reduce its health
-                target.health -= 1
+                target.health -= random.randint(2, 5)
                 print('%s is attacking %s! %d' %(type(self).__name__, 'me', self.game.player.health))
                 play_sound(PAINB, 0, 0.5)
                 play_sound(GRUNT, 1)
