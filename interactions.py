@@ -60,5 +60,5 @@ class Pickup():
                         index = random.randint(0, len(ROCK_MINE) - 1)
                         play_sound(ROCK_MINE[index])
                     else:
-                        play_sound(LEATHER_INVENTORY)
+                        play_sound(PICKUP_SOUND)
                     pickup.kill()

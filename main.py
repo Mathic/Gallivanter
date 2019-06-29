@@ -32,21 +32,20 @@ class Game:
         self.bg_img = pg.image.load(path.join(img_folder, BG_IMG)).convert_alpha()
         self.boundary_img = pg.image.load(path.join(img_folder, BOUNDARY_IMG)).convert_alpha()
         self.boundary_img = pg.transform.scale(self.boundary_img, (64, 64))
-        self.play_btn = pg.image.load(path.join(img_folder, PLAY_BTN)).convert_alpha()
-        self.exit_btn = pg.image.load(path.join(img_folder, EXIT_BTN)).convert_alpha()
-        self.mute_btn = pg.image.load(path.join(img_folder, MUTE_BTN)).convert_alpha()
-        self.unmute_btn = pg.image.load(path.join(img_folder, UNMUTE_BTN)).convert_alpha()
-        self.resume_btn = pg.image.load(path.join(img_folder, RESUME_BTN)).convert_alpha()
+
+        self.play_img = pg.image.load(path.join(img_folder, PLAY_BTN)).convert_alpha()
+        self.exit_img = pg.image.load(path.join(img_folder, EXIT_BTN)).convert_alpha()
+        self.mute_img = pg.image.load(path.join(img_folder, MUTE_BTN)).convert_alpha()
+        self.unmute_img = pg.image.load(path.join(img_folder, UNMUTE_BTN)).convert_alpha()
+        self.resume_img = pg.image.load(path.join(img_folder, RESUME_BTN)).convert_alpha()
+        self.hover_img = pg.image.load(path.join(img_folder, HOVER_BTN)).convert_alpha()
 
         self.door_img = pg.image.load(path.join(img_folder, DOOR_IMG)).convert_alpha()
         self.door_img = pg.transform.scale(self.door_img, (64, 64))
-
         self.floor_img = pg.image.load(path.join(img_folder, FLOOR_IMG)).convert_alpha()
         self.floor_img = pg.transform.scale(self.floor_img, (64, 64))
-
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
         self.wall_img = pg.transform.scale(self.wall_img, (64, 64))
-
         self.campfire_img = pg.image.load(path.join(img_folder, CAMPFIRE_IMG)).convert_alpha()
         self.campfire_img = pg.transform.scale(self.campfire_img, (64, 64))
 
@@ -66,6 +65,7 @@ class Game:
         self.structures = pg.sprite.LayeredUpdates()
         self.tools = pg.sprite.LayeredUpdates()
         self.walls = pg.sprite.LayeredUpdates()
+        self.workbench = pg.sprite.LayeredUpdates()
 
         self.paused = False
         self.muted = False
@@ -76,8 +76,11 @@ class Game:
         self.mob_count = 0
         self.rock_count = 0
         self.available_tiles = []
-        # self.wall_tiles = []
         self.grid = WeightedGrid(self, WIDTH, HEIGHT)
+
+        self.mutebutton = None
+        self.hover = Button(self, self.hover_img, WIDTH - 200, 150, 150, 75, None)
+        load_music(INTRO_SONG)
 
         player_row = player_col = 0
 
@@ -131,12 +134,14 @@ class Game:
         self.playing = True
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
-            self.events()
             if not self.paused:
+                self.events()
                 self.update()
             self.draw()
 
     def quit(self):
+        play_sound(QUIT_BUTTON_SOUND)
+        pg.time.wait(500)
         pg.quit()
         sys.exit()
 
@@ -183,7 +188,7 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            self.draw_hitboxes(sprite)
+            # self.draw_hitboxes(sprite)
         pg.display.flip()
 
     def events(self):
@@ -193,9 +198,11 @@ class Game:
                 self.quit()
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
+                    play_sound(RESUME_BUTTON_SOUND)
                     self.paused = True
                     self.show_pause_screen()
                 if event.key == pg.K_q:
+                    play_sound(LEATHER_INVENTORY, channel=1)
                     self.inventory_open = True
                     self.paused = True
                     self.show_inventory_screen()
@@ -228,47 +235,6 @@ class Game:
         textSurface = font.render(text, True, BLACK)
         return textSurface, textSurface.get_rect()
 
-    def draw_button(self,msg,x,y,w,h,ic,ac,action=None):
-        mouse = pg.mouse.get_pos()
-        click = pg.mouse.get_pressed()
-        if x+w > mouse[0] > x and y+h > mouse[1] > y:
-            pg.draw.rect(self.screen, ac,(x,y,w,h))
-            if click[0] == 1 and action != None:
-                action()
-        else:
-            pg.draw.rect(self.screen, ic,(x,y,w,h))
-
-        smallText = pg.font.SysFont("segoeprint", 20)
-        textSurf, textRect = self.text_objects(msg, smallText)
-        textRect.center = ( (x+(w/2)), (y+(h/2)) )
-        self.screen.blit(textSurf, textRect)
-
-    def show_start_screen(self):
-        intro = True
-        load_music(INTRO_SONG)
-        pg.mixer.music.play(-1)
-        self.screen.blit(self.bg_img, (0, 0))
-        Button(self, self.play_btn, WIDTH - 200, 150, 150, 75, self.game_loop)
-        Button(self, self.exit_btn, WIDTH - 200, 250, 150, 75, self.quit)
-        if self.muted:
-            self.mutebutton = Button(self, self.unmute_btn, WIDTH - 200, 350, 150, 75, self.unmute)
-        else:
-            self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.mute)
-        self.buttons.draw(self.screen)
-
-        while intro:
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    self.quit()
-                if event.type == pg.MOUSEBUTTONDOWN:
-                    if event.button == LEFT_CLICK:
-                        for btn in self.buttons:
-                            if btn.clicked(event):
-                                btn.action()
-
-            pg.display.update()
-            self.clock.tick(15)
-
     def unpause(self):
         if not self.muted:
             change_song(VILLAGE_SONG)
@@ -285,36 +251,57 @@ class Game:
             btn.kill()
 
     def mute(self):
-        self.muted = True
-        pg.mixer.music.fadeout(200)
-        self.mutebutton.kill()
-        self.mutebutton = Button(self, self.unmute_btn, WIDTH - 200, 350, 150, 75, self.unmute)
-        pg.display.update()
-        self.clock.tick(15)
+        if self.muted:
+            pg.mixer.music.play()
+            self.mutebutton.change_image(self.mute_img, WIDTH - 200, 350, 150, 75)
+        else:
+            pg.mixer.music.fadeout(200)
+            self.mutebutton.change_image(self.unmute_img, WIDTH - 200, 350, 150, 75)
 
-    def unmute(self):
-        self.muted = False
-        pg.mixer.music.play()
-        self.mutebutton.kill()
-        self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.mute)
+        self.muted = not self.muted
+        self.buttons.draw(self.screen)
         pg.display.update()
-        self.clock.tick(15)
+
+    def show_start_screen(self):
+        intro = True
+        if not self.muted:
+            change_song(INTRO_SONG)
+        self.screen.fill(BGCOLOR)
+        self.screen.blit(self.bg_img, (0, 0))
+        Button(self, self.play_img, WIDTH - 200, 150, 150, 75, self.game_loop, PLAY_BUTTON_SOUND)
+        Button(self, self.exit_img, WIDTH - 200, 250, 150, 75, self.quit, QUIT_BUTTON_SOUND)
+        if self.muted:
+            self.mutebutton = Button(self, self.unmute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
+        else:
+            self.mutebutton = Button(self, self.mute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
+        self.buttons.draw(self.screen)
+
+        while intro:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.quit()
+
+                for btn in self.buttons:
+                    btn.handle_events(event)
+
+            pg.display.update()
+            self.clock.tick(15)
 
     def show_pause_screen(self):
         if not self.muted:
             change_song(INTRO_SONG)
         # Translucent pause menu
         s = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-        s.fill((255,255,255,128))
+        s.fill((0, 0, 0, 64))
         self.screen.blit(s, (0, 0))
-        # resume_btn = Button(self, self.play_btn, 250, 450, 150, 75, self.unpause)
-        # quit_btn = Button(self, self.exit_btn, 650, 450, 150, 75, self.quit)
-        resume_btn = Button(self, self.resume_btn, WIDTH - 200, 150, 150, 75, self.unpause)
-        quit_btn = Button(self, self.exit_btn, WIDTH - 200, 250, 150, 75, self.quit)
+        self.screen.blit(self.bg_img, (0, 0))
+        self.hover = Button(self, self.hover_img, WIDTH - 200, 150, 150, 75, None)
+        Button(self, self.resume_img, WIDTH - 200, 150, 150, 75, self.unpause, RESUME_BUTTON_SOUND)
+        Button(self, self.exit_img, WIDTH - 200, 250, 150, 75, self.quit, QUIT_BUTTON_SOUND)
         if self.muted:
-            self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.unmute)
+            self.mutebutton = Button(self, self.unmute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
         else:
-            self.mutebutton = Button(self, self.mute_btn, WIDTH - 200, 350, 150, 75, self.mute)
+            self.mutebutton = Button(self, self.mute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
         self.buttons.draw(self.screen)
 
         while self.paused:
@@ -324,19 +311,13 @@ class Game:
                     self.quit()
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
+                        play_sound(RESUME_BUTTON_SOUND)
                         self.paused = False
                         for btn in self.buttons:
                             btn.kill()
-                if event.type == pg.MOUSEBUTTONDOWN:
-                    if event.button == LEFT_CLICK:
-                        for btn in self.buttons:
-                            if btn.clicked(event):
-                                btn.action()
 
-            if resume_btn.rect.collidepoint(pg.mouse.get_pos()):
-                resume_btn.image = pg.transform.scale(resume_btn.image, (120, 70))
-            else:
-                resume_btn.image = pg.transform.scale(resume_btn.image, (100, 50))
+                for btn in self.buttons:
+                    btn.handle_events(event)
 
             pg.display.update()
             self.clock.tick(15)
@@ -350,10 +331,12 @@ class Game:
         # Show Inventory contents
         y_pos = 100
         y_offset = 50
+
         smallText = pg.font.SysFont("segoeprint", 20)
         inv_text, inv_rect = self.text_objects("Inventory contents:", smallText)
         inv_rect.center = (200, y_pos + y_offset)
         self.screen.blit(inv_text, inv_rect)
+
         for item in self.inventory.contents:
             y_pos += y_offset
 
@@ -385,22 +368,28 @@ class Game:
         # Button(self, self.floor_img, x_pos, 200, 64, 64, self.craft)
         # x_pos += x_offset
         # Button(self, self.campfire_img, x_pos, 200, 64, 64, self.craft)
-        if 'log' in self.inventory.contents and 'rock' in self.inventory.contents:
-            RPickaxe(self, PICK_IMG, x_pos, 200)
-            x_pos += x_offset
-            if self.inventory.contents['rock'] >= 2:
-                RSword(self, SWORD_IMG, x_pos, 200)
-                x_pos += x_offset
-            if self.inventory.contents['log'] >= 2 and self.inventory.contents['rock'] >= 2:
-                RAxe(self, AXE_IMG, x_pos, 200)
+
+        for recipe in Recipe.__subclasses__():
+            craft_name = recipe.__name__
+            workbench_in_range = False
+
+            if hasattr(recipe, 'proximity'):
+                for workbench in self.workbench:
+                    print(workbench)
+                    if workbench.name == recipe.proximity:
+                        if abs(self.player.pos.x - workbench.x * TILESIZE) <= recipe.range and abs(self.player.pos.y - workbench.y * TILESIZE) <= recipe.range:
+                            workbench_in_range = True
+                            break
+            else:
+                workbench_in_range = True
+
+            if workbench_in_range and self.inventory.contains_items(recipe.ingredients):
+                recipe(self, x_pos, 200)
                 x_pos += x_offset
 
-        if abs(self.player.pos.x - self.campfire.x * TILESIZE) <= 128 and abs(self.player.pos.y - self.campfire.y * TILESIZE) <= 128 and 'meat' in self.inventory.contents:
-            RSteak(self, STEAK_IMG, x_pos, 200)
-            x_pos += x_offset
-
-        resume_btn = Button(self, self.resume_btn, 850, 650, 150, 75, self.close_inventory)
-        # quit_btn = Button(self, self.exit_btn, 650, 450, 150, 75, self.quit)
+        Button(self, self.resume_img, 850, 650, 150, 75, self.close_inventory, RESUME_BUTTON_SOUND)
+        self.hover = Button(self, self.hover_img, 850, 650, 150, 75, None)
+        # quit_btn = Button(self, self.exit_img, 650, 450, 150, 75, self.quit)
         self.buttons.draw(self.screen)
 
         while self.inventory_open:
@@ -410,13 +399,11 @@ class Game:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_e:
                         # self.inventory_gui.kill()
+                        play_sound(RESUME_BUTTON_SOUND)
                         self.close_inventory()
-                if event.type == pg.MOUSEBUTTONDOWN:
-                    if event.button == LEFT_CLICK:
-                        for btn in self.buttons:
-                            if btn.clicked(event) and self.crafting == False:
-                                self.close_inventory()
-                                btn.action()
+
+                for btn in self.buttons:
+                    btn.handle_events(event)
 
             pg.display.update()
             self.clock.tick(15)

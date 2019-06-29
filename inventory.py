@@ -21,6 +21,25 @@ class Inventory():
                 del self.contents[name]
             return index
 
+    def contains_item(self, name, amount):
+        if amount > 0: # make sure amount required is positive
+            if name in self.contents:
+                if self.contents[name] >= amount:
+                    return True
+        return False
+
+    def contains_items(self, dict):
+        has_ingredients = False
+        for item in dict:
+            if dict[item] > 0: # make sure amount required is positive
+                if item in self.contents:
+                    if self.contents[item] >= dict[item]:
+                        has_ingredients = True
+                    else:
+                        return False
+
+        return has_ingredients
+
 class InventoryGUI(pg.sprite.Sprite):
     def __init__(self, game, pos):
         self.groups = game.all_sprites
@@ -50,11 +69,12 @@ class Hotbar(pg.sprite.Sprite):
         self.pos = vec(pos)
         self.pos.y += HOTBAR_OFFSET
         self.rect.center = self.pos
+        self.selected = None
 
         self.displays = {}
 
-    def apply(self, entity):
-        return entity.rect.move(self.image.topleft)
+    # def apply(self, entity):
+    #     return entity.rect.move(self.image.topleft)
 
     def add_to_hotbar(self, index, name):
         # if the index is > 8 (max 9 items in hotbar), do not display

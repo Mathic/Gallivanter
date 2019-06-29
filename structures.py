@@ -1,8 +1,9 @@
 from helper import *
 
 class Structure(pg.sprite.Sprite):
-    def __init__(self, game, x , y, offset): # pos, dir, facing, width, height, offset):
-        sprite_init(self, game, STRUCTURE_LAYER, (game.all_sprites, game.structures, game.obstacles), None)
+    def __init__(self, game, x , y, offset, name): # pos, dir, facing, width, height, offset):
+        self.groups = game.all_sprites, game.structures, game.obstacles
+        sprite_init(self, game, STRUCTURE_LAYER, self.groups, None)
 
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'resources')
@@ -36,37 +37,36 @@ class Structure(pg.sprite.Sprite):
         self.hitbox = self.rect
         self.hitbox.center = self.rect.center
 
-    def update(self):
-        pass
+        self.name = name
 
 class Campfire(Structure):
-    def __init__(self, game, x , y): # pos, dir, facing, width, height, offset):
-        super().__init__(game, x, y, 96) # pos, dir, facing, width, height, 96)
-        self.groups = game.collides
-        pg.sprite.Sprite.__init__(self, self.groups)
+    def __init__(self, game, x , y):
+        super().__init__(game, x, y, 96, type(self).__name__)
+        game.collides.add(self)
+        game.workbench.add(self)
+        print(self.name)
 
     def update(self):
         self.game.all_sprites.change_layer(self, self.rect.bottom)
 
 class Floor(Structure):
-    def __init__(self, game, x , y): # pos, dir, facing, width, height, offset):
-        super().__init__(game, x, y, 32) # pos, dir, facing, width, height, 96)
+    def __init__(self, game, x , y):
+        super().__init__(game, x, y, 32, type(self).__name__)
 
     # def update(self):
     #     self.game.all_sprites.change_layer(self, self.rect.top)
 
 class Wall(Structure):
-    def __init__(self, game, x , y): # pos, dir, facing, width, height, offset):
-        super().__init__(game, x, y, 64) # pos, dir, facing, width, height, 96)
-        self.groups = game.collides
-        pg.sprite.Sprite.__init__(self, self.groups)
+    def __init__(self, game, x , y):
+        super().__init__(game, x, y, 64, type(self).__name__)
+        game.collides.add(self)
 
     def update(self):
         self.game.all_sprites.change_layer(self, self.rect.bottom)
 
 class Door(Structure):
-    def __init__(self, game, x , y): # pos, dir, facing, width, height, offset):
-        super().__init__(game, x, y, 0) # pos, dir, facing, width, height, 96)
+    def __init__(self, game, x , y):
+        super().__init__(game, x, y, 0, type(self).__name__)
 
     def update(self):
         self.game.all_sprites.change_layer(self, self.rect.bottom)

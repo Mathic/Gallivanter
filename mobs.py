@@ -71,7 +71,7 @@ class Wolf(pg.sprite.Sprite):
         self.animation_frames = 6
         self.current_frame = 0
         self.current_dir = self.front
-        self.health = random.randint(100, 300)
+        self.health = random.randint(100, 150)
         self.starting_health = self.health
         self.health_bar = HealthBar(game, self.pos.x, self.pos.y, self.health / self.starting_health * 50)
 
@@ -219,7 +219,7 @@ class Wolf(pg.sprite.Sprite):
             attacking = Attack(self.game, self.game.me, self.melee)
             target = attacking.target_hit()
             if target != None: # if there is a target in hitbox, reduce its health
-                target.health -= random.randint(2, 5)
+                target.health -= random.randint(3, 8)
                 print('%s is attacking %s! %d' %(type(self).__name__, 'me', self.game.player.health))
                 play_sound(PAINB, 0, 0.5)
                 play_sound(GRUNT, 1)

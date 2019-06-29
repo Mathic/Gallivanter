@@ -34,6 +34,8 @@ FPS = 60
 TITLE = 'Gallivanter'
 BGCOLOR = GRASS
 
+MOUSE_CLICK_TIMER = 500
+
 LEFT_CLICK = 1
 RIGHT_CLICK = 3
 
@@ -94,10 +96,10 @@ GRASS_IMG = 'grass.png'
 
 TREE_GROW_TIME = 180000
 
-# Background
-BG_IMG = 'background.png'
+# Background image
+BG_IMG = 'bg.png'
 
-# inventory
+# Inventory
 BACKPACK_IMG = 'backpack.png'
 
 ITEM_IMG = 'items.png'
@@ -120,5 +122,6 @@ GROUND_IMG_4 = 'tile013.png'
 PLAY_BTN = 'play_btn.png'
 EXIT_BTN = 'exit_btn.png'
 MUTE_BTN = 'mute_btn.png'
-UNMUTE_BTN = 'mute_btn.png'
+HOVER_BTN = 'hover.png'
+UNMUTE_BTN = 'unmute_btn.png'
 RESUME_BTN = 'resume_btn.png'
