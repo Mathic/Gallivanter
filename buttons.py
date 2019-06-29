@@ -39,7 +39,6 @@ class Button(pg.sprite.Sprite):
 
                 self.game.hover.rect = self.rect
                 self.game.buttons.draw(self.game.screen)
-                pg.display.update()
 
             if event.type == pg.MOUSEBUTTONDOWN: # when clicked
                 if event.button == LEFT_CLICK and self.action is not None:

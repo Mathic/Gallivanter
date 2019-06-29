@@ -6,14 +6,15 @@ class Player(pg.sprite.Sprite):
         sprite_init(self, game, y, (game.all_sprites, game.me), None)
         self.front, self.back, self.left, self.right = ([] for i in range(4))
         self.idle_fr, self.idle_bk, self.idle_lf, self.idle_rt = ([] for i in range(4))
-        self.walking_sprites(P_WALK_FR, self.front)
-        self.walking_sprites(P_WALK_BK, self.back)
-        self.walking_sprites(P_WALK_LF, self.left)
-        self.walking_sprites(P_WALK_RT, self.right)
-        self.idle_sprites(P_IDLE_FR, self.idle_fr)
-        self.idle_sprites(P_IDLE_BK, self.idle_bk)
-        self.idle_sprites(P_IDLE_LF, self.idle_lf)
-        self.idle_sprites(P_IDLE_RT, self.idle_rt)
+        # self.walking_sprites(P_WALK_FR, self.front)
+        # self.walking_sprites(P_WALK_BK, self.back)
+        # self.walking_sprites(P_WALK_LF, self.left)
+        # self.walking_sprites(P_WALK_RT, self.right)
+        # self.idle_sprites(P_IDLE_FR, self.idle_fr)
+        # self.idle_sprites(P_IDLE_BK, self.idle_bk)
+        # self.idle_sprites(P_IDLE_LF, self.idle_lf)
+        # self.idle_sprites(P_IDLE_RT, self.idle_rt)
+        self.walking_sprites(CHARACTER_SPRITES)
         self.index = 2
         self.image = self.front[self.index]
         self.vel = vec(0, 0)
@@ -45,18 +46,54 @@ class Player(pg.sprite.Sprite):
 
     def walking_sprites(self, name, dir=[]):
         sprite_sheet = SpriteSheet(name)
-        image = sprite_sheet.get_image(0, 0, 8, 18)
-        dir.append(image)
-        image = sprite_sheet.get_image(8, 0, 8, 18)
-        dir.append(image)
-        image = sprite_sheet.get_image(16, 0, 8, 18)
-        dir.append(image)
-        image = sprite_sheet.get_image(24, 0, 8, 18)
-        dir.append(image)
-        image = sprite_sheet.get_image(32, 0, 8, 18)
-        dir.append(image)
-        image = sprite_sheet.get_image(40, 0, 8, 18)
-        dir.append(image)
+
+        image = sprite_sheet.get_image(0, 0, 32, 32, False)
+        self.front.append(image)
+        image = sprite_sheet.get_image(64, 0, 32, 32, False)
+        self.front.append(image)
+        image = sprite_sheet.get_image(32, 0, 32, 32, False)
+        self.front.append(image)
+        image = sprite_sheet.get_image(64, 0, 32, 32, False)
+        self.front.append(image)
+        image = sprite_sheet.get_image(64, 0, 32, 32, False)
+        self.front.append(image)
+        self.idle_fr.append(image)
+
+        image = sprite_sheet.get_image(0, 32, 32, 32, False)
+        self.left.append(image)
+        self.right.append(pg.transform.flip(image, True, False))
+        image = sprite_sheet.get_image(64, 32, 32, 32, False)
+        self.left.append(image)
+        self.right.append(pg.transform.flip(image, True, False))
+        image = sprite_sheet.get_image(32, 32, 32, 32, False)
+        self.left.append(image)
+        self.right.append(pg.transform.flip(image, True, False))
+        image = sprite_sheet.get_image(64, 32, 32, 32, False)
+        self.left.append(image)
+        self.idle_lf.append(image)
+        self.right.append(pg.transform.flip(image, True, False))
+        self.idle_rt.append(pg.transform.flip(image, True, False))
+
+        image = sprite_sheet.get_image(0, 64, 32, 32, False)
+        self.back.append(image)
+        image = sprite_sheet.get_image(64, 64, 32, 32, False)
+        self.back.append(image)
+        image = sprite_sheet.get_image(32, 64, 32, 32, False)
+        self.back.append(image)
+        image = sprite_sheet.get_image(64, 64, 32, 32, False)
+        self.back.append(image)
+        self.idle_bk.append(image)
+
+        # image = sprite_sheet.get_image(8, 0, 8, 18)
+        # dir.append(image)
+        # image = sprite_sheet.get_image(16, 0, 8, 18)
+        # dir.append(image)
+        # image = sprite_sheet.get_image(24, 0, 8, 18)
+        # dir.append(image)
+        # image = sprite_sheet.get_image(32, 0, 8, 18)
+        # dir.append(image)
+        # image = sprite_sheet.get_image(40, 0, 8, 18)
+        # dir.append(image)
 
     def idle_sprites(self, name, dir=[]):
         sprite_sheet = SpriteSheet(name)
@@ -110,7 +147,7 @@ class Player(pg.sprite.Sprite):
 
             if not any(keys):
                 if self.first_time > 0:
-                    self.image = self.current_dir[2]
+                    self.image = self.current_dir[1]
                     self.first_time = 0
                 self.animation_frames = random.randint(5, 25)
                 self.animate(True, None)
@@ -133,7 +170,7 @@ class Player(pg.sprite.Sprite):
                 elif self.current_dir == self.right:
                     dir = self.idle_rt
 
-                self.index = np.random.choice(len(dir), 1, p=[0.5, 0.1, 0.2, 0.2])[0]
+                self.index = 0 # np.random.choice(len(dir), 1, p=[0.5, 0.1, 0.2, 0.2])[0]
         elif self.current_frame >= self.animation_frames:
             self.current_frame = 0
             self.index = (self.index + 1) % len(dir)

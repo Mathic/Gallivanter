@@ -188,7 +188,7 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            # self.draw_hitboxes(sprite)
+            self.draw_hitboxes(sprite)
         pg.display.flip()
 
     def events(self):
@@ -339,9 +339,7 @@ class Game:
 
         for item in self.inventory.contents:
             y_pos += y_offset
-
             smallText = pg.font.SysFont("segoeprint", 20)
-
             if self.inventory.contents[item] > 1:
                 msg = str(self.inventory.contents[item]) + " " + item.capitalize() + "s"
             else:

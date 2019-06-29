@@ -65,6 +65,8 @@ P_IDLE_BK = 'idle_bk.png'
 P_IDLE_LF = 'idle_lf.png'
 P_IDLE_RT = 'idle_rt.png'
 
+CHARACTER_SPRITES = 'character.png'
+
 # Tools and structures
 STRUCTURE_IMG = 'structures.png'
 

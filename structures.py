@@ -53,9 +53,6 @@ class Floor(Structure):
     def __init__(self, game, x , y):
         super().__init__(game, x, y, 32, type(self).__name__)
 
-    # def update(self):
-    #     self.game.all_sprites.change_layer(self, self.rect.top)
-
 class Wall(Structure):
     def __init__(self, game, x , y):
         super().__init__(game, x, y, 64, type(self).__name__)
