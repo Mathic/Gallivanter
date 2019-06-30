@@ -6,31 +6,25 @@ class Player(pg.sprite.Sprite):
         sprite_init(self, game, y, (game.all_sprites, game.me), None)
         self.front, self.back, self.left, self.right = ([] for i in range(4))
         self.idle_fr, self.idle_bk, self.idle_lf, self.idle_rt = ([] for i in range(4))
-        # self.walking_sprites(P_WALK_FR, self.front)
-        # self.walking_sprites(P_WALK_BK, self.back)
-        # self.walking_sprites(P_WALK_LF, self.left)
-        # self.walking_sprites(P_WALK_RT, self.right)
-        # self.idle_sprites(P_IDLE_FR, self.idle_fr)
-        # self.idle_sprites(P_IDLE_BK, self.idle_bk)
-        # self.idle_sprites(P_IDLE_LF, self.idle_lf)
-        # self.idle_sprites(P_IDLE_RT, self.idle_rt)
         self.walking_sprites(CHARACTER_SPRITES)
         self.index = 2
         self.image = self.front[self.index]
         self.vel = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
 
-        self.x_offset = 16
-        self.y_offset = 36
-
         self.hitbox = self.image.get_rect()
         self.hitbox.center = self.pos
+        self.hitbox = self.hitbox.inflate(-24, 0)
+
+        self.width = self.hitbox.size[0]
+        self.height = self.hitbox.size[1]
+        self.x_offset = self.width - 8
+        self.y_offset = self.height / 2
+        self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
 
         self.rect = self.hitbox
-        self.rect = self.rect.inflate(0, -36)
         self.rect.center = self.hitbox.center
-
-        self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
+        self.rect = self.rect.inflate(0, -self.height/2)
 
         self.animation_frames = 6
         self.current_frame = 0
@@ -40,8 +34,7 @@ class Player(pg.sprite.Sprite):
         self.last_action = pg.time.get_ticks()
         self.facing = 'front'
         self.health = 100
-        self.width = self.rect.size[0]
-        self.height = self.rect.size[1]
+
         self.melee = None
 
     def walking_sprites(self, name, dir=[]):
@@ -84,17 +77,6 @@ class Player(pg.sprite.Sprite):
         self.back.append(image)
         self.idle_bk.append(image)
 
-        # image = sprite_sheet.get_image(8, 0, 8, 18)
-        # dir.append(image)
-        # image = sprite_sheet.get_image(16, 0, 8, 18)
-        # dir.append(image)
-        # image = sprite_sheet.get_image(24, 0, 8, 18)
-        # dir.append(image)
-        # image = sprite_sheet.get_image(32, 0, 8, 18)
-        # dir.append(image)
-        # image = sprite_sheet.get_image(40, 0, 8, 18)
-        # dir.append(image)
-
     def idle_sprites(self, name, dir=[]):
         sprite_sheet = SpriteSheet(name)
         image = sprite_sheet.get_image(0, 0, 8, 18)
@@ -118,28 +100,28 @@ class Player(pg.sprite.Sprite):
                 self.current_dir = self.left
                 self.facing = 'left'
                 self.dir_angle = -90
-                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, -self.image.get_width()*2)
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, -self.width/2)
             if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 self.animate(False, self.right)
                 self.vel.x = PLAYER_SPEED
                 self.current_dir = self.right
                 self.facing = 'right'
                 self.dir_angle = -90
-                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, self.image.get_width())
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, self.width/2)
             if keys[pg.K_UP] or keys[pg.K_w]:
                 self.animate(False, self.back)
                 self.vel.y = -PLAYER_SPEED
                 self.current_dir = self.back
                 self.facing = 'back'
                 self.dir_angle = 0
-                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, -self.image.get_height())
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, -self.height/2)
             if keys[pg.K_DOWN] or keys[pg.K_s]:
                 self.animate(False, self.front)
                 self.vel.y = PLAYER_SPEED
                 self.current_dir = self.front
                 self.facing = 'front'
                 self.dir_angle = 180
-                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.image.get_height())
+                self.melee = MeleeHitBox(self, self.pos.x, self.pos.y, 0, self.height/2)
             if self.vel.x != 0 and self.vel.y != 0:
                 self.vel /= sqrt(2)
             if keys[pg.K_e]:
@@ -189,7 +171,7 @@ class Player(pg.sprite.Sprite):
         self.get_keys()
         self.pos += self.vel * self.game.dt
 
-        self.rect.x = self.pos.x
+        self.rect.x = self.pos.x + 12
         detect_collision(self, self.game.collides, 'x')
         self.rect.y = self.pos.y
         detect_collision(self, self.game.collides, 'y')

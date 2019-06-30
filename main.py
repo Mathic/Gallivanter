@@ -94,8 +94,21 @@ class Game:
                     Wolf(self, col, row)
                     self.mob_count += 1
                 elif tile == 'T':
-                    Tree(self, col, row)
+                    # Tree(self, col, row)
                     self.grid.walls.append(vec(row, col))
+                    tree = random.randint(0, 2)
+                    if tree == 0:
+                        img = PINE_IMG
+                        TreeTop(self, col, row - 2, img)
+                        TreeBottom(self, col, row, img)
+                    elif tree == 1:
+                        img = MAPLE_IMG
+                        TreeBottom(self, col, row, img)
+                    else:
+                        img = BIRCH_IMG
+                        TreeTop(self, col, row - 2, img)
+                        TreeBottom(self, col, row, img)
+
                 elif tile == 'F':
                     Floor(self, col, row)
                 elif tile == 'D':
@@ -176,6 +189,8 @@ class Game:
             sprite.draw_hitbox()
             if sprite.melee != None:
                 sprite.melee.draw_hitbox(self, DARKGREY)
+        if hasattr(sprite, 'draw_hitbox') and type(sprite).__name__ == 'TreeBottom':
+            sprite.draw_hitbox()
         if hasattr(sprite, 'melee') and type(sprite).__name__ != 'Player':
             if hasattr(sprite.melee, 'draw_hitbox') and sprite.melee != None:
                 sprite.melee.draw_hitbox(self, RED)

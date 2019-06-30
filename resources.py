@@ -92,6 +92,33 @@ class Tree(pg.sprite.Sprite):
             self.image = self.stump[0]
             self.last_chopped = pg.time.get_ticks()
 
+class TreeBase(pg.sprite.Sprite):
+    def __init__(self, game, x, y, img, y_offset=0, layer_offset=0):
+        sprite_init(self, game, y, (game.all_sprites, game.resources, game.obstacles), img)
+        self.image = self.sprite_sheet.get_image(0, y_offset, 32, 32)
+        self.pos = vec(x, y) * TILESIZE
+        self.rect = self.image.get_rect()
+        # self.rect = self.rect.inflate(-90, 0)
+        self.rect.center = self.pos
+        self.hitbox = self.rect
+        self.layer_offset = layer_offset
+
+    def draw_hitbox(self):
+        pg.draw.rect(self.game.screen, YELLOW, self.rect, 2)
+        pg.draw.rect(self.game.screen, MADANG, self.hitbox, 2)
+
+    def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom + self.layer_offset)
+
+class TreeBottom(TreeBase):
+    def __init__(self, game, x, y, img):
+        super().__init__(game, x, y, img, y_offset=32)
+        self.game.collides.add(self)
+
+class TreeTop(TreeBase):
+    def __init__(self, game, x, y, img):
+        super().__init__(game, x, y, img, layer_offset=16)
+
 class Grass(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         sprite_init(self, game, BG_LAYER, (game.all_sprites), None)
@@ -140,5 +167,5 @@ class Boundary(pg.sprite.Sprite):
         pg.draw.rect(self.game.screen, MADANG, self.hitbox)
 
     def update(self):
-        # self.game.all_sprites.change_layer(self, self.rect.bottom)
-        pass
+        self.game.all_sprites.change_layer(self, self.rect.bottom)
+        # pass

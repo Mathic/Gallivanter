@@ -96,6 +96,10 @@ APRIL_WOLF_IMG = 'aprilsilverwolf.png'
 TREE_IMG = 'tree.png'
 GRASS_IMG = 'grass.png'
 
+PINE_IMG = 'pine_tree.png'
+BIRCH_IMG = 'birch_tree.png'
+MAPLE_IMG = 'maple_tree.png'
+
 TREE_GROW_TIME = 180000
 
 # Background image

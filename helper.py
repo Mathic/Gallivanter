@@ -225,11 +225,11 @@ def detect_collision(sprite, group, dir):
         hits = pg.sprite.spritecollide(sprite, group, False)
         if hits:
             if sprite.vel.x > 0:
-                sprite.pos.x = hits[0].rect.left - sprite.rect.width
+                sprite.pos.x = hits[0].rect.left - sprite.rect.width - 12
             if sprite.vel.x < 0:
-                sprite.pos.x = hits[0].rect.right
+                sprite.pos.x = hits[0].rect.right - 12
             sprite.vel.x = 0
-            sprite.rect.x = sprite.pos.x
+            sprite.rect.x = sprite.pos.x + 12
     if dir == 'y':
         hits = pg.sprite.spritecollide(sprite, group, False)
         if hits:
