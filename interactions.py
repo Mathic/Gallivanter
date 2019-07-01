@@ -20,6 +20,7 @@ class HealthBar():
 
     def draw_health(self, game, x, y, color, width=50):
         self.bar = pg.Rect(x, y, width, 10)
+        self.bar = self.bar.move(self.game.camera.camera.topleft)
         pg.draw.rect(game.screen, color, self.bar)
         pg.draw.rect(game.screen, BLACK, self.bar, 2)
 
@@ -45,7 +46,7 @@ class Attack():
                         target.health -= 25
                     if type(target).__name__ == 'Wolf':
                         target.health -= 25
-                        if target.health <= 25: # number should be weapon damage
+                        if target.health <= 0: # number should be weapon damage
                             play_sound(WOLF_WHINE, 1)
                         else:
                             Sword(self.game, self.game.player.pos, dir, self.game.player.facing, width, height)

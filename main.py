@@ -195,7 +195,7 @@ class Game:
             if hasattr(sprite.melee, 'draw_hitbox') and sprite.melee != None:
                 sprite.melee.draw_hitbox(self, RED)
         if hasattr(sprite, 'health_bar'):
-            if sprite.attacked:
+            if sprite.health < 100:
                 sprite.health_bar.draw_health(self, sprite.pos.x, sprite.pos.y, GREEN, (sprite.health / sprite.starting_health) * 50)
 
     def draw(self):
@@ -224,7 +224,7 @@ class Game:
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == LEFT_CLICK:
                     now = pg.time.get_ticks()
-                    if now - self.player.last_action > SWING_RATE and self.paused == False
+                    if now - self.player.last_action > SWING_RATE and self.paused == False:
                         Attack(self, self.resources, self.player.melee)
                         Attack(self, self.mobs, self.player.melee)
 
@@ -265,12 +265,12 @@ class Game:
             change_song(INTRO_SONG)
         self.screen.fill(BGCOLOR)
         self.screen.blit(self.bg_img, (0, 0))
-        Button(self, self.play_img, WIDTH - 200, 150, 150, 75, self.game_loop, PLAY_BUTTON_SOUND)
-        Button(self, self.exit_img, WIDTH - 200, 250, 150, 75, self.quit, QUIT_BUTTON_SOUND)
+        MenuButton(self, self.play_img, WIDTH - 200, 150, 150, 75, self.game_loop, PLAY_BUTTON_SOUND)
+        MenuButton(self, self.exit_img, WIDTH - 200, 250, 150, 75, self.quit, QUIT_BUTTON_SOUND)
         if self.muted:
-            self.mutebutton = Button(self, self.unmute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
+            self.mutebutton = MenuButton(self, self.unmute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
         else:
-            self.mutebutton = Button(self, self.mute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
+            self.mutebutton = MenuButton(self, self.mute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
         self.buttons.draw(self.screen)
 
         while intro:
@@ -293,12 +293,12 @@ class Game:
         self.screen.blit(s, (0, 0))
         self.screen.blit(self.bg_img, (0, 0))
         self.hover = Button(self, self.hover_img, WIDTH - 200, 150, 150, 75, None)
-        Button(self, self.resume_img, WIDTH - 200, 150, 150, 75, self.unpause, RESUME_BUTTON_SOUND)
-        Button(self, self.exit_img, WIDTH - 200, 250, 150, 75, self.quit, QUIT_BUTTON_SOUND)
+        MenuButton(self, self.resume_img, WIDTH - 200, 150, 150, 75, self.unpause, RESUME_BUTTON_SOUND)
+        MenuButton(self, self.exit_img, WIDTH - 200, 250, 150, 75, self.quit, QUIT_BUTTON_SOUND)
         if self.muted:
-            self.mutebutton = Button(self, self.unmute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
+            self.mutebutton = MenuButton(self, self.unmute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
         else:
-            self.mutebutton = Button(self, self.mute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
+            self.mutebutton = MenuButton(self, self.mute_img, WIDTH - 200, 350, 150, 75, self.mute, MUTE_BUTTON_SOUND)
         self.buttons.draw(self.screen)
 
         while self.paused:
@@ -382,7 +382,7 @@ class Game:
                 recipe(self, x_pos, 200)
                 x_pos += x_offset
 
-        Button(self, self.resume_img, 850, 650, 150, 75, self.close_inventory, RESUME_BUTTON_SOUND)
+        MenuButton(self, self.resume_img, 850, 650, 150, 75, self.close_inventory, RESUME_BUTTON_SOUND)
         self.hover = Button(self, self.hover_img, 850, 650, 150, 75, None)
         # quit_btn = Button(self, self.exit_img, 650, 450, 150, 75, self.quit)
         self.buttons.draw(self.screen)

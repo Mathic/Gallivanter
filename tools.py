@@ -44,61 +44,34 @@ class Pickaxe(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 0)
 
-    def update(self):
-        super().update()
-
 class Hatchet(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 9)
-
-    def update(self):
-        super().update()
 
 class Axe(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 18)
 
-    def update(self):
-        super().update()
-
 class Bow(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 27)
-
-    def update(self):
-        super().update()
 
 class Hammer(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 36)
 
-    def update(self):
-        super().update()
-
 class Sword(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 45)
-
-    def update(self):
-        super().update()
 
 class Broadsword(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 54)
 
-    def update(self):
-        super().update()
-
 class Rod(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 63)
 
-    def update(self):
-        super().update()
-
 class Knife(Tool):
     def __init__(self, game, pos, dir, facing, width, height):
         super().__init__(game, pos, dir, facing, width, height, 72)
-
-    def update(self):
-        super().update()

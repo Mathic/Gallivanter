@@ -7,39 +7,6 @@ class Mob(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         sprite_init(self, game, CHARACTER_LAYER, (game.all_sprites, game.mobs, game.collides), None)
 
-class Bite(pg.sprite.Sprite):
-    def __init__(self, game, pos, dir, facing, width, height):
-        sprite_init(self, game, CHARACTER_LAYER, (game.all_sprites, game.melee), TOOL_IMG)
-        self.image = self.sprite_sheet.get_image(9, 0, 9, 9, True)
-
-        if facing == 'left':
-            self.pos = vec(pos.x, pos.y + height / 2)
-        if facing == 'right':
-            self.pos = vec(pos.x + width, pos.y + height / 2)
-        if facing == 'back':
-            self.pos = vec(pos.x + width / 2, pos.y)
-        if facing == 'front':
-            self.pos = vec(pos.x + width / 2, pos.y + height)
-
-        if facing == 'left' or facing == 'back':
-            self.image = pg.transform.flip(self.image, True, False)
-        if facing == 'front':
-            self.image = pg.transform.flip(self.image, False, True)
-
-        self.count = 0
-        self.rect = self.image.get_rect()
-        self.vel = dir * TOOL_SPEED
-        self.rect.center = self.pos
-        self.swing_speed = 250
-        self.angle = 0
-        self.spawn_time = pg.time.get_ticks()
-
-    def update(self):
-        self.pos += self.vel * self.game.dt
-        self.rect.center = self.pos
-        if pg.time.get_ticks() - self.spawn_time > TOOL_LIFETIME:
-            self.kill()
-
 class Wolf(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         sprite_init(self, game, y, (game.all_sprites, game.mobs, game.collides), None)
@@ -239,7 +206,8 @@ class Wolf(pg.sprite.Sprite):
             self.image = dir[self.index]
 
     def draw_hitbox(self):
-        pg.draw.rect(self.game.screen, MADANG, self.hitbox, 2)
+        self.hitbox = self.hitbox.move(self.game.camera.camera.topleft)
+        pg.draw.rect(self.game.screen, YELLOW, self.hitbox, 2)
 
     def update(self):
         if self.health <= 0:

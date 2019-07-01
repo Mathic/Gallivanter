@@ -27,7 +27,9 @@ class Player(pg.sprite.Sprite):
         self.first_time = 0 # increments by 1 when keys are being pressed
         self.last_action = pg.time.get_ticks()
         self.facing = 'front'
+        self.starting_health = 100
         self.health = 100
+        self.health_bar = HealthBar(game, self.pos.x, self.pos.y, self.health / self.starting_health * 50)
 
         self.melee = None
 

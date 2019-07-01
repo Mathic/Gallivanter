@@ -7,7 +7,7 @@ class Recipe():
         self.game = game
         img = load_image(img_name)
         img = pg.transform.scale(img, (64, 64))
-        Button(self.game, img, x, y, 64, 64, self.action, hover=False)
+        CraftingButton(self.game, img, x, y, 64, 64, self.action)
 
     def action(self, sound, ingredients):
         self.game.crafting = True
