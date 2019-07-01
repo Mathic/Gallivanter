@@ -99,15 +99,15 @@ class Game:
                     tree = random.randint(0, 2)
                     if tree == 0:
                         img = PINE_IMG
-                        TreeTop(self, col, row - 2, img)
-                        TreeBottom(self, col, row, img)
+                        bottom = TreeBottom(self, col, row, img)
+                        TreeTop(self, col, row - 2, img, bottom=bottom)
                     elif tree == 1:
                         img = MAPLE_IMG
-                        TreeBottom(self, col, row, img)
+                        TreeBottom(self, col, row, img, y_offset=0)
                     else:
                         img = BIRCH_IMG
-                        TreeTop(self, col, row - 2, img)
-                        TreeBottom(self, col, row, img)
+                        bottom = TreeBottom(self, col, row, img)
+                        TreeTop(self, col, row - 2, img, bottom=bottom)
 
                 elif tile == 'F':
                     Floor(self, col, row)
@@ -224,27 +224,9 @@ class Game:
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == LEFT_CLICK:
                     now = pg.time.get_ticks()
-                    if now - self.player.last_action > SWING_RATE and self.paused == False:
-                        self.player.last_action = now
-                        dir = vec(1, 0).rotate(-self.player.dir_angle)
-                        width = self.player.image.get_size()[0]
-                        height = self.player.image.get_size()[1]
-
-                        mining = Attack(self, self.resources, self.player.melee)
-                        hunting = Attack(self, self.mobs, self.player.melee)
-
-                        target = mining.target_hit()
-                        if target != None:
-                            if type(target).__name__ == 'Tree' and not target.chopped:
-                                Axe(self, self.player.pos, dir, self.player.facing, width, height)
-                                target.health -= 25
-
-                        target = hunting.target_hit()
-                        if target != None:
-                            Sword(self, self.player.pos, dir, self.player.facing, width, height)
-                            play_sound(PUNCH)
-                            target.health -= 25
-                            target.health_bar.first_time = 0
+                    if now - self.player.last_action > SWING_RATE and self.paused == False
+                        Attack(self, self.resources, self.player.melee)
+                        Attack(self, self.mobs, self.player.melee)
 
     def text_objects(self, text, font):
         textSurface = font.render(text, True, BLACK)

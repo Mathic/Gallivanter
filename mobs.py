@@ -214,16 +214,10 @@ class Wolf(pg.sprite.Sprite):
         self.hitbox.center = self.rect.center
 
     def attack(self):
-        now = pg.time.get_ticks()
         if self.melee != None: # if there is a melee hitbox
-            attacking = Attack(self.game, self.game.me, self.melee)
-            target = attacking.target_hit()
-            if target != None: # if there is a target in hitbox, reduce its health
-                target.health -= random.randint(3, 8)
-                print('%s is attacking %s! %d' %(type(self).__name__, 'me', self.game.player.health))
-                play_sound(PAINB, 0, 0.5)
-                play_sound(GRUNT, 1)
-                self.last_bite = now
+            Attack(self.game, self.game.me, self.melee)
+            now = pg.time.get_ticks()
+            self.last_bite = now
 
     def animate(self, dir=[]):
         # use idle image or animations based on actions

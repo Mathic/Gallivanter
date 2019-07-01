@@ -12,19 +12,13 @@ class Player(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
 
-        self.hitbox = self.image.get_rect()
-        self.hitbox.center = self.pos
-        self.hitbox = self.hitbox.inflate(-24, 0)
-
-        self.width = self.hitbox.size[0]
-        self.height = self.hitbox.size[1]
-        self.x_offset = self.width - 8
-        self.y_offset = self.height / 2
-        self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)
-
-        self.rect = self.hitbox
-        self.rect.center = self.hitbox.center
-        self.rect = self.rect.inflate(0, -self.height/2)
+        self.rect = self.image.get_rect()
+        self.rect.center = self.pos
+        self.width = self.rect.size[0]
+        self.height = self.rect.size[1]
+        self.x_offset = self.width / 2
+        self.y_offset = self.height / 4
+        self.hitbox = self.rect.inflate(-24, -self.height/2)
 
         self.animation_frames = 6
         self.current_frame = 0
@@ -171,10 +165,12 @@ class Player(pg.sprite.Sprite):
         self.get_keys()
         self.pos += self.vel * self.game.dt
 
-        self.rect.x = self.pos.x + 12
-        detect_collision(self, self.game.collides, 'x')
+        self.hitbox.x = self.pos.x
+        self.rect.x = self.pos.x
+        hitbox_collision(self, self.game.collides, 'x')
+        self.hitbox.y = self.pos.y
         self.rect.y = self.pos.y
-        detect_collision(self, self.game.collides, 'y')
+        hitbox_collision(self, self.game.collides, 'y')
 
         self.hitbox.center = self.pos
         self.hitbox = self.hitbox.move(self.x_offset, self.y_offset)

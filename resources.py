@@ -93,7 +93,7 @@ class Tree(pg.sprite.Sprite):
             self.last_chopped = pg.time.get_ticks()
 
 class TreeBase(pg.sprite.Sprite):
-    def __init__(self, game, x, y, img, y_offset=0, layer_offset=0):
+    def __init__(self, game, x, y, img, y_offset, layer_offset=0, bottom=None):
         sprite_init(self, game, y, (game.all_sprites, game.resources, game.obstacles), img)
         self.image = self.sprite_sheet.get_image(0, y_offset, 32, 32)
         self.pos = vec(x, y) * TILESIZE
@@ -101,23 +101,44 @@ class TreeBase(pg.sprite.Sprite):
         # self.rect = self.rect.inflate(-90, 0)
         self.rect.center = self.pos
         self.hitbox = self.rect
+        self.hitbox = self.hitbox.inflate(-110, -110)
+        self.hitbox = self.hitbox.move(0, 16)
         self.layer_offset = layer_offset
 
+        self.chopped = False
+        self.dropped = False
+        self.health = 100
+        self.last_chopped = pg.time.get_ticks()
+        self.bottom = bottom
+
     def draw_hitbox(self):
-        pg.draw.rect(self.game.screen, YELLOW, self.rect, 2)
-        pg.draw.rect(self.game.screen, MADANG, self.hitbox, 2)
+        pg.draw.rect(self.game.screen, YELLOW, self.hitbox, 2)
+        pg.draw.rect(self.game.screen, MADANG, self.rect, 2)
 
     def update(self):
         self.game.all_sprites.change_layer(self, self.rect.bottom + self.layer_offset)
 
+        if self.health <= 0 and not self.dropped:
+            ILog(self.game, self.pos + vec(50, 50))
+            self.chopped = True
+            self.dropped = True
+            self.last_chopped = pg.time.get_ticks()
+            self.kill()
+
 class TreeBottom(TreeBase):
-    def __init__(self, game, x, y, img):
-        super().__init__(game, x, y, img, y_offset=32)
+    def __init__(self, game, x, y, img, y_offset=32, layer_offset=-32):
+        super().__init__(game, x, y, img, y_offset)
         self.game.collides.add(self)
 
 class TreeTop(TreeBase):
-    def __init__(self, game, x, y, img):
-        super().__init__(game, x, y, img, layer_offset=16)
+    def __init__(self, game, x, y, img, y_offset=0, layer_offset=64, bottom=None):
+        super().__init__(game, x, y, img, y_offset, layer_offset, bottom)
+
+    def update(self):
+        super().update()
+        if not self.bottom.alive():
+            print('dead')
+            self.kill()
 
 class Grass(pg.sprite.Sprite):
     def __init__(self, game, x, y):

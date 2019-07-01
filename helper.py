@@ -175,50 +175,27 @@ def collided(sprite, other):
     else:
         return
 
-# broken now
-def collide_with_walls(sprite, group, dir, x_offset=0, y_offset=0):
-    if dir == 'x':
-        hits = pg.sprite.spritecollide(sprite, group, False, collided)
-        # for hit in hits:
-        #     print(type(hit).__name__)
-        if hits:
-            old_posx = sprite.pos.x
-            if type(sprite).__name__ == 'Player' and sprite.vel.x != 0:
-                print('Velocity x', sprite.vel.x)
-                print('Old position x', sprite.pos.x)
-                print(hits[0].hitbox.left, hits[0].hitbox.right, sprite.hitbox.width, sprite.rect.width)
-
-            if sprite.vel.x > 0:
-                sprite.pos.x = hits[0].hitbox.left - sprite.hitbox.width # + 10
-            if sprite.vel.x < 0:
-                sprite.pos.x = hits[0].hitbox.right # - x_offset
-            sprite.vel.x = 0
-            sprite.rect.x = sprite.pos.x
-            sprite.hitbox.x = sprite.rect.x
-
-            if type(sprite).__name__ == 'Player' and sprite.pos.x != old_posx:
-                print('New position x', sprite.pos.x)
-            # if hasattr(sprite, 'self.x_offset'):
-            #     sprite.hitbox.x += sprite.x_offset
-    if dir == 'y':
-        hits = pg.sprite.spritecollide(sprite, group, False, collided)
-        if hits:
-            old_posy = sprite.pos.y
-            if type(sprite).__name__ == 'Player' and sprite.vel.y != 0:
-                # print('Velocity y', sprite.vel.y)
-                print('Old position y', sprite.pos.y)
-                print(hits[0].hitbox.top, hits[0].hitbox.bottom, sprite.hitbox.height, sprite.rect.height)
-
-            if sprite.vel.y > 0:
-                sprite.pos.y = hits[0].hitbox.top - sprite.hitbox.height # - y_offset*2
-            if sprite.vel.y < 0:
-                sprite.pos.y = hits[0].hitbox.bottom # + y_offset*2
-            sprite.vel.y = 0
-            sprite.rect.y = sprite.pos.y
-            sprite.hitbox.y = sprite.rect.y
-
-            if type(sprite).__name__ == 'Player' and sprite.pos.y != old_posy:
-                print('New position y', sprite.pos.y)
+def hitbox_collision(sprite, group, dir):
+    collisions = sprite.game.collides.sprites()
+    for collision in collisions:
+        if hasattr(sprite, 'hitbox') and hasattr(collision, 'hitbox'):
+            if sprite.hitbox.colliderect(collision.hitbox):
+                if dir == 'x':
+                    if sprite.vel.x > 0: # coming from left
+                        sprite.pos.x = collision.hitbox.left - sprite.hitbox.width
+                    if sprite.vel.x < 0: # coming from right
+                        sprite.pos.x = collision.hitbox.right
+                    sprite.vel.x = 0
+                    sprite.hitbox.x = sprite.pos.x
+                    sprite.rect.x = sprite.pos.x
+                if dir == 'y':
+                    if sprite.vel.y > 0: # coming from top
+                        sprite.pos.y = collision.hitbox.top - sprite.hitbox.height
+                    if sprite.vel.y < 0: # coming from bottom
+                        sprite.pos.y = collision.hitbox.bottom
+                    sprite.vel.y = 0
+                    sprite.hitbox.y = sprite.pos.y
+                    sprite.rect.y = sprite.pos.y
 
 def detect_collision(sprite, group, dir):
     if dir == 'x':
