@@ -79,29 +79,21 @@ class Hotbar(pg.sprite.Sprite):
     def add_to_hotbar(self, index, name):
         # if the index is > 8 (max 9 items in hotbar), do not display
         if index > 8:
-            pass
+            return
 
         if name in self.displays:
             self.displays[name].quantity += 1
         else:
             item_pos = vec(self.pos.x + ((index - 4) * 48), self.pos.y)
 
-            if name == 'meat':
-                self.displays[name] = IMeat(self.game, item_pos)
-            elif name == 'pelt':
-                self.displays[name] = IPelt(self.game, item_pos)
-            elif name == 'log':
-                self.displays[name] = ILog(self.game, item_pos)
-            elif name == 'rock':
-                self.displays[name] = IRock(self.game, item_pos)
-            elif name == 'steak':
-                self.displays[name] = ISteak(self.game, item_pos)
-            elif name == 'pickaxe':
-                self.displays[name] = IPickaxe(self.game, item_pos)
-            elif name == 'axe':
-                self.displays[name] = IAxe(self.game, item_pos)
-            elif name == 'sword':
-                self.displays[name] = ISword(self.game, item_pos)
+            for item in Item.__subclasses__():
+                craft_name = item.__name__
+                if craft_name == 'CraftableItem':
+                    for i in CraftableItem.__subclasses__():
+                        if i.item_name == name:
+                            self.displays[name] = i(self.game, item_pos)
+                elif item.item_name == name:
+                    self.displays[name] = item(self.game, item_pos)
 
             self.displays[name].quantity = 1
 
@@ -122,7 +114,7 @@ class Hotbar(pg.sprite.Sprite):
                 del self.displays[name]
 
     def update(self):
-        # move with the player
+        # move hotbar with the player
         self.pos.x = self.game.player.pos.x
         self.pos.y = self.game.player.pos.y + HOTBAR_OFFSET
 
@@ -131,7 +123,7 @@ class Hotbar(pg.sprite.Sprite):
         max_x = WIDTH*4 - self.image.get_size()[0] - HOTBAR_X_OFFSET*2 + 4
         min_x = WIDTH - self.image.get_size()[0] - HOTBAR_X_OFFSET
 
-        # limit the hotbar
+        # limit the hotbar position
         if self.pos.y > max_y:
             self.pos.y = max_y
         elif self.pos.y < min_y:

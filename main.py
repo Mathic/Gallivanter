@@ -108,7 +108,14 @@ class Game:
                         img = BIRCH_IMG
                         bottom = TreeBottom(self, col, row, img)
                         TreeTop(self, col, row - 2, img, bottom=bottom)
-
+                elif tile == 'i':
+                    i = 0
+                    for item in CraftableItem.__subclasses__():
+                        craft_name = item.__name__
+                        print(item)
+                        pos = vec((col + i) * TILESIZE, row * TILESIZE)
+                        item(self, pos)
+                        i += 1
                 elif tile == 'F':
                     Floor(self, col, row)
                 elif tile == 'D':
@@ -203,7 +210,7 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            self.draw_hitboxes(sprite)
+            # self.draw_hitboxes(sprite)
         pg.display.flip()
 
     def events(self):

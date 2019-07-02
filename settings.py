@@ -110,6 +110,9 @@ BACKPACK_IMG = 'backpack.png'
 
 ITEM_IMG = 'items.png'
 
+CRAFTABLE_IMG = 'craftables.png'
+GATHERABLE_IMG = 'gatherables.png'
+
 HOTBAR_IMG = 'hotbar.png'
 HOTBAR_OFFSET = 325
 HOTBAR_Y_OFFSET = 9
