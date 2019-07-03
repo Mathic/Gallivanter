@@ -19,6 +19,10 @@ DOLLY = (255, 255, 126)
 SALOMIE = (255, 236, 139)
 CANDYCORN = (254, 241, 96)
 
+INVENTORY = (211, 170, 116)
+INV_SLOT_IMG = 'inventory_slot.png'
+HOVER_SLOT_IMG = 'hover_slot.png'
+
 def get_darker(color, factor = 2/5):
     if len(color) == 4:
         darker = tuple( [int(c*factor) for c in color[:-1]] + [color[3]] )
@@ -75,7 +79,7 @@ FLOOR_IMG = 'ayenne_floor.png'
 WALL_IMG = 'ayenne_wall.png'
 CAMPFIRE_IMG = 'campfire.png'
 
-STEAK_IMG = 'steak.png'
+STEAK_IMG = 'tile019.png'
 
 TOOL_IMG = 'tools.png'
 SWING_RATE = 375
@@ -106,12 +110,12 @@ TREE_GROW_TIME = 180000
 BG_IMG = 'bg.png'
 
 # Inventory
-BACKPACK_IMG = 'backpack.png'
-
 ITEM_IMG = 'items.png'
 
 CRAFTABLE_IMG = 'craftables.png'
 GATHERABLE_IMG = 'gatherables.png'
+
+SPRITES = 'assets.png'
 
 HOTBAR_IMG = 'hotbar.png'
 HOTBAR_OFFSET = 325

@@ -26,8 +26,6 @@ class Game:
         # print(pg.font.get_fonts())
 
     def load_data(self):
-        game_folder = path.dirname(__file__)
-        img_folder = path.join(game_folder, 'resources')
         self.map = Map(path.join(img_folder, MAP))
         self.bg_img = pg.image.load(path.join(img_folder, BG_IMG)).convert_alpha()
         self.boundary_img = pg.image.load(path.join(img_folder, BOUNDARY_IMG)).convert_alpha()
@@ -66,6 +64,8 @@ class Game:
         self.tools = pg.sprite.LayeredUpdates()
         self.walls = pg.sprite.LayeredUpdates()
         self.workbench = pg.sprite.LayeredUpdates()
+
+        self.iLibrary = ItemLibrary(self)
 
         self.paused = False
         self.muted = False
@@ -112,9 +112,9 @@ class Game:
                     i = 0
                     for item in CraftableItem.__subclasses__():
                         craft_name = item.__name__
-                        print(item)
+                        # print(item)
                         pos = vec((col + i) * TILESIZE, row * TILESIZE)
-                        item(self, pos)
+                        item(self, pos).draw_image()
                         i += 1
                 elif tile == 'F':
                     Floor(self, col, row)
@@ -327,40 +327,7 @@ class Game:
             self.clock.tick(15)
 
     def show_inventory_screen(self):
-        s = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-        s.fill((255, 255, 255, 80))
-        self.screen.blit(s, (0, 0))
-        # self.inventory_gui = InventoryGUI(self, self.player.pos)
-
-        # Show Inventory contents
-        y_pos = 100
-        y_offset = 50
-
-        smallText = pg.font.SysFont("segoeprint", 20)
-        inv_text, inv_rect = self.text_objects("Inventory contents:", smallText)
-        inv_rect.center = (200, y_pos + y_offset)
-        self.screen.blit(inv_text, inv_rect)
-
-        for item in self.inventory.contents:
-            y_pos += y_offset
-            smallText = pg.font.SysFont("segoeprint", 20)
-            if self.inventory.contents[item] > 1:
-                msg = str(self.inventory.contents[item]) + " " + item.capitalize() + "s"
-            else:
-                msg = str(self.inventory.contents[item]) + " " + item.capitalize()
-            textSurf, textRect = self.text_objects(msg, smallText)
-            textRect.center = (200, y_pos + y_offset)
-            textRect.left = inv_rect.left
-            self.screen.blit(textSurf, textRect)
-
-        # Show craftable items
-        x_pos = 420
-        x_offset = 80
-
-        smallText = pg.font.SysFont("segoeprint", 20)
-        textSurf, textRect = self.text_objects("Craftable items:", smallText)
-        textRect.center = (500, 150)
-        self.screen.blit(textSurf, textRect)
+        self.inventory_gui = InventoryGUI(self, self.player.pos)
 
         # STRUCTURES!!! DO NOT DELETE!!
         # Button(self, self.door_img, x_pos, 200, 64, 64, self.craft)
@@ -370,24 +337,6 @@ class Game:
         # Button(self, self.floor_img, x_pos, 200, 64, 64, self.craft)
         # x_pos += x_offset
         # Button(self, self.campfire_img, x_pos, 200, 64, 64, self.craft)
-
-        for recipe in Recipe.__subclasses__():
-            craft_name = recipe.__name__
-            workbench_in_range = False
-
-            if hasattr(recipe, 'proximity'):
-                for workbench in self.workbench:
-                    print(workbench)
-                    if workbench.name == recipe.proximity:
-                        if abs(self.player.pos.x - workbench.x * TILESIZE) <= recipe.range and abs(self.player.pos.y - workbench.y * TILESIZE) <= recipe.range:
-                            workbench_in_range = True
-                            break
-            else:
-                workbench_in_range = True
-
-            if workbench_in_range and self.inventory.contains_items(recipe.ingredients):
-                recipe(self, x_pos, 200)
-                x_pos += x_offset
 
         MenuButton(self, self.resume_img, 850, 650, 150, 75, self.close_inventory, RESUME_BUTTON_SOUND)
         self.hover = Button(self, self.hover_img, 850, 650, 150, 75, None)
@@ -405,6 +354,9 @@ class Game:
                         self.close_inventory()
 
                 for btn in self.buttons:
+                    btn.handle_events(event)
+
+                for btn in self.iLibrary.images.values():
                     btn.handle_events(event)
 
             pg.display.update()
