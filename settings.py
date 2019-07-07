@@ -86,9 +86,9 @@ SWING_RATE = 375
 TOOL_LIFETIME = 375
 TOOL_SPEED = 10
 
-PICK_IMG = 'pickaxe.png'
-SWORD_IMG = 'sword.png'
-AXE_IMG = 'axe.png'
+PICK_IMG = 'tile011.png'
+SWORD_IMG = 'tile014.png'
+AXE_IMG = 'tile028.png'
 
 # Reources and mobs
 BITE_RATE = 1000
@@ -124,12 +124,6 @@ HOTBAR_X_OFFSET = 60
 
 #  Wall image
 BOUNDARY_IMG = 'tile035.png'
-
-# Ground images
-GROUND_IMG_1 = 'tile030.png'
-GROUND_IMG_2 = 'tile008.png'
-GROUND_IMG_3 = 'tile010.png'
-GROUND_IMG_4 = 'tile013.png'
 
 # Button Sprites
 PLAY_BTN = 'play_btn.png'

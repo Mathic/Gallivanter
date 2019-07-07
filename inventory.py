@@ -56,33 +56,56 @@ class ItemData():
         self.rect = None
         self.sound = HOVER_SOUND
         self.name = name
+        self.selected = False
 
     def handle_events(self, event):
         # print(event)
         if self.rect == None:
             return
 
+        mx, my = pg.mouse.get_pos()
+        ox = self.rect.x - mx
+        oy = self.rect.y - my
+
         if self.rect.collidepoint(pg.mouse.get_pos()): # when hovered
             self.redraw(HOVER_SLOT_IMG)
 
-            if event.type == pg.MOUSEBUTTONDOWN: # when clicked
-                if event.button == LEFT_CLICK: # and self.action is not None:
+             # when clicked
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if event.button == LEFT_CLICK:
+                    self.selected = True
+                    mx, my = pg.mouse.get_pos()
+                    ox = self.rect.x - mx
+                    oy = self.rect.y - my
                     # if self.sound != HOVER_SOUND:
                     play_sound(self.sound)
                     # self.action()
         else:
             self.redraw(INV_SLOT_IMG)
 
+        if event.type == pg.MOUSEBUTTONUP:
+            self.selected = False
+            mx, my = pg.mouse.get_pos()
+            self.rect.x = mx + ox
+            self.rect.y = my + oy
+            self.game.screen.blit(self.image, self.rect)
+            pg.display.flip()
+        elif event.type == pg.MOUSEMOTION:
+            if self.selected:
+                # print(pg.mouse.get_pos())
+                pass
+
     def redraw(self, img):
-        hover_img = pg.image.load(path.join(img_folder, img)).convert_alpha()
-        hoverrect = hover_img.get_rect()
-        hoverrect.center = self.rect.center
-        self.game.screen.blit(hover_img, hoverrect)
-        self.game.screen.blit(self.image, self.rect)
-        smallText = pg.font.SysFont("pixelated", 20)
-        inv_text, inv_rect = self.game.text_objects(str(self.game.inventory.contents[self.name]), smallText)
-        inv_rect.center = self.rect.center + vec(20, 20)
-        self.game.screen.blit(inv_text, inv_rect)
+        if self.game.inventory.contains_item(self.name, 1):
+            hover_img = pg.image.load(path.join(img_folder, img)).convert_alpha()
+            hoverrect = hover_img.get_rect()
+            hoverrect.center = self.rect.center
+            self.game.screen.blit(hover_img, hoverrect)
+            self.game.screen.blit(self.image, self.rect)
+            smallText = pg.font.SysFont("pixelated", 20)
+            inv_text, inv_rect = self.game.text_objects(str(self.game.inventory.contents[self.name]), smallText)
+            inv_rect.center = self.rect.center + vec(20, 20)
+            self.game.screen.blit(inv_text, inv_rect)
 
 # Item library to draw on the inventory menu
 class ItemLibrary():
@@ -133,9 +156,9 @@ class ItemLibrary():
         self.game.screen.blit(image, self.images[name].rect)
 
 class InventoryGUI():
-    def __init__(self, game, pos):
+    def __init__(self, game):
         s = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-        s.fill((255, 255, 255, 80))
+        s.fill((128, 128, 128, 80))
         game.screen.blit(s, (0, 0))
 
         # Show Inventory contents
@@ -144,8 +167,8 @@ class InventoryGUI():
         hover_img = pg.image.load(path.join(img_folder, HOVER_SLOT_IMG)).convert_alpha()
         hoverrect = hover_img.get_rect()
 
-        x_start = 200
-        y_start = 75
+        x_start = 192
+        y_start = 385
 
         offset = 64
         for row in range(9):
@@ -178,7 +201,7 @@ class InventoryGUI():
         x_offset = 80
         smallText = pg.font.SysFont("segoeprint", 20)
         textSurf, textRect = game.text_objects("Craftable items:", smallText)
-        textRect.center = (500, 400)
+        textRect.center = (500, 90)
         game.screen.blit(textSurf, textRect)
 
         for recipe in Recipe.__subclasses__():
@@ -187,7 +210,6 @@ class InventoryGUI():
 
             if hasattr(recipe, 'proximity'):
                 for workbench in game.workbench:
-                    print(workbench)
                     if workbench.name == recipe.proximity:
                         if abs(game.player.pos.x - workbench.x * TILESIZE) <= recipe.range and abs(game.player.pos.y - workbench.y * TILESIZE) <= recipe.range:
                             workbench_in_range = True
@@ -196,7 +218,7 @@ class InventoryGUI():
                 workbench_in_range = True
 
             if workbench_in_range and game.inventory.contains_items(recipe.ingredients):
-                recipe(game, x_pos, 432)
+                recipe(game, x_pos, 122)
                 x_pos += x_offset
 
 class Hotbar(pg.sprite.Sprite):
@@ -211,9 +233,6 @@ class Hotbar(pg.sprite.Sprite):
         self.selected = None
 
         self.displays = {}
-
-    # def apply(self, entity):
-    #     return entity.rect.move(self.image.topleft)
 
     def add_to_hotbar(self, index, name):
         # if the index is > 8 (max 9 items in hotbar), do not display
@@ -239,7 +258,7 @@ class Hotbar(pg.sprite.Sprite):
                     self.displays[name] = item(self.game, item_pos)
 
             self.displays[name].quantity = 1
-            self.displays[name].draw_image()
+            self.displays[name]
 
         self.displays[name].in_inventory = True
         # print('Displaying: %s, quantity %2d' %(name, self.displays[name].quantity))

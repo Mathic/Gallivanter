@@ -114,7 +114,7 @@ class Game:
                         craft_name = item.__name__
                         # print(item)
                         pos = vec((col + i) * TILESIZE, row * TILESIZE)
-                        item(self, pos).draw_image()
+                        item(self, pos)
                         i += 1
                 elif tile == 'F':
                     Floor(self, col, row)
@@ -201,9 +201,6 @@ class Game:
         if hasattr(sprite, 'melee') and type(sprite).__name__ != 'Player':
             if hasattr(sprite.melee, 'draw_hitbox') and sprite.melee != None:
                 sprite.melee.draw_hitbox(self, RED)
-        if hasattr(sprite, 'health_bar'):
-            if sprite.health < 100:
-                sprite.health_bar.draw_health(self, sprite.pos.x, sprite.pos.y, GREEN, (sprite.health / sprite.starting_health) * 50)
 
     def draw(self):
         self.screen.fill(BGCOLOR)
@@ -211,6 +208,9 @@ class Game:
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
             # self.draw_hitboxes(sprite)
+            if hasattr(sprite, 'health_bar'):
+                if sprite.health < 100:
+                    sprite.health_bar.draw_health(self, sprite.pos.x, sprite.pos.y, (sprite.health / sprite.starting_health) * 50)
         pg.display.flip()
 
     def events(self):
@@ -327,7 +327,7 @@ class Game:
             self.clock.tick(15)
 
     def show_inventory_screen(self):
-        self.inventory_gui = InventoryGUI(self, self.player.pos)
+        self.inventory_gui = InventoryGUI(self)
 
         # STRUCTURES!!! DO NOT DELETE!!
         # Button(self, self.door_img, x_pos, 200, 64, 64, self.craft)

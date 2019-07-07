@@ -18,11 +18,13 @@ class HealthBar():
         self.bar = pg.Rect(x, y, width, 10)
         self.first_time = 0
 
-    def draw_health(self, game, x, y, color, width=50):
+    def draw_health(self, game, x, y, width=50):
         self.bar = pg.Rect(x, y, width, 10)
         self.bar = self.bar.move(self.game.camera.camera.topleft)
-        pg.draw.rect(game.screen, color, self.bar)
-        pg.draw.rect(game.screen, BLACK, self.bar, 2)
+        pg.draw.rect(game.screen, GREEN, self.bar)
+        full = pg.Rect(x, y, 50, 10)
+        full = full.move(self.game.camera.camera.topleft)
+        pg.draw.rect(game.screen, BLACK, full, 2)
 
 class Attack():
     def __init__(self, game, target, weapon):

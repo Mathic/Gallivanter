@@ -6,7 +6,6 @@ class Recipe():
     def __init__(self, game, img_name, x, y):
         self.game = game
         img = load_image(img_name)
-        img = pg.transform.scale(img, (64, 64))
         CraftingButton(self.game, img, x, y, 64, 64, self.action)
 
     def action(self, sound, ingredients):

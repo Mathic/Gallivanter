@@ -89,7 +89,7 @@ class INanaimo(CraftableItem):
 
 class IBeaverTail1(CraftableItem):
     item_name = 'beaver_tail_1'
-    description = 'A cruncy beaver tail topped with cinnamon and sugar.'
+    description = 'A crunchy pastry topped with cinnamon and sugar.'
 
     def __init__(self, game, pos):
         super().__init__(game, pos, self.item_name, 144)
