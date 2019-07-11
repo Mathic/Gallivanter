@@ -1,6 +1,7 @@
+from helper import *
+from hud import *
 from interactions import *
 from items import *
-from helper import *
 # from tools import *
 
 class Mob(pg.sprite.Sprite):
@@ -40,7 +41,8 @@ class Wolf(pg.sprite.Sprite):
         self.current_dir = self.front
         self.health = random.randint(100, 150)
         self.starting_health = self.health
-        self.health_bar = HealthBar(game, self.pos.x, self.pos.y, self.health / self.starting_health * 50)
+        self.health_bar_width = 50
+        self.health_bar = HealthBar(game, self.pos.x, self.pos.y, self.health / self.starting_health * self.health_bar_width)
 
         self.width = self.rect.size[0]
         self.height = self.rect.size[1]

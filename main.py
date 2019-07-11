@@ -14,6 +14,7 @@ from resources import *
 from sprites import *
 from structures import *
 from tilemap import *
+from hud import *
 
 class Game:
     def __init__(self):
@@ -196,10 +197,15 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            self.draw_hitboxes(sprite)
-            if hasattr(sprite, 'health_bar'):
+            # self.draw_hitboxes(sprite)
+            if hasattr(sprite, 'hunger_bar'):
+                bg = pg.Rect(0, 20, 320, 90)
+                pg.draw.rect(self.screen, MADANG, bg)
+                sprite.health_bar.draw_hud(self, 60, 30, sprite.health, sprite.starting_health, 'HP')
+                sprite.hunger_bar.draw_hud(self, 60, 70, sprite.hunger, sprite.starting_hunger, 'Hunger')
+            if hasattr(sprite, 'health_bar') and type(sprite).__name__ != 'Player':
                 if sprite.health < 100:
-                    sprite.health_bar.draw_health(self, sprite.pos.x, sprite.pos.y, (sprite.health / sprite.starting_health) * 50)
+                    sprite.health_bar.draw_health(self, sprite.pos.x, sprite.pos.y, (sprite.health / sprite.starting_health) * sprite.health_bar_width)
         pg.display.flip()
 
     def events(self):
@@ -223,10 +229,6 @@ class Game:
                     if now - self.player.last_action > SWING_RATE and self.paused == False:
                         Attack(self, self.resources, self.player.melee)
                         Attack(self, self.mobs, self.player.melee)
-
-    def text_objects(self, text, font):
-        textSurface = font.render(text, True, BLACK)
-        return textSurface, textSurface.get_rect()
 
     def unpause(self):
         if not self.muted:

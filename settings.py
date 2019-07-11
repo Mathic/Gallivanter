@@ -91,7 +91,7 @@ SWORD_IMG = 'tile014.png'
 AXE_IMG = 'tile028.png'
 
 # Reources and mobs
-BITE_RATE = 1000
+BITE_RATE = 600
 MOB_SPEED = 2
 
 # WOLF_IMG = 'wolf2.png'

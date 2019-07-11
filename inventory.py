@@ -103,7 +103,7 @@ class ItemData():
             self.game.screen.blit(hover_img, hoverrect)
             self.game.screen.blit(self.image, self.rect)
             smallText = pg.font.SysFont("pixelated", 20)
-            inv_text, inv_rect = self.game.text_objects(str(self.game.inventory.contents[self.name]), smallText)
+            inv_text, inv_rect = text_objects(str(self.game.inventory.contents[self.name]), smallText)
             inv_rect.center = self.rect.center + vec(20, 20)
             self.game.screen.blit(inv_text, inv_rect)
 
@@ -191,7 +191,7 @@ class InventoryGUI():
             col = col % 9
             # print(row, col)
             smallText = pg.font.SysFont("pixelated", 20)
-            inv_text, inv_rect = game.text_objects(str(game.inventory.contents[content]), smallText)
+            inv_text, inv_rect = text_objects(str(game.inventory.contents[content]), smallText)
             inv_rect.center = pos + vec(20, 20)
             game.screen.blit(inv_text, inv_rect)
         pg.display.flip()
@@ -200,7 +200,7 @@ class InventoryGUI():
         x_pos = 200
         x_offset = 80
         smallText = pg.font.SysFont("segoeprint", 20)
-        textSurf, textRect = game.text_objects("Craftable items:", smallText)
+        textSurf, textRect = text_objects("Craftable items:", smallText)
         textRect.center = (500, 90)
         game.screen.blit(textSurf, textRect)
 
@@ -283,7 +283,7 @@ class Hotbar(pg.sprite.Sprite):
 
         max_y = HEIGHT*4 - self.image.get_size()[1] + HOTBAR_Y_OFFSET
         min_y = HEIGHT - self.image.get_size()[1] + HOTBAR_Y_OFFSET - 4
-        max_x = WIDTH*4 - self.image.get_size()[0] - HOTBAR_X_OFFSET*2 + 4
+        max_x = WIDTH*4 - self.image.get_size()[0] - HOTBAR_X_OFFSET + 60
         min_x = WIDTH - self.image.get_size()[0] - HOTBAR_X_OFFSET + 124
 
         # limit the hotbar position

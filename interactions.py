@@ -4,28 +4,6 @@ from tools import *
 game_folder = path.dirname(__file__)
 music_folder = path.join(game_folder, 'resources')
 
-class MeleeHitBox():
-    def __init__(self, game, x, y, width=0, height=0):
-        self.game = game
-        self.hitbox = pg.Rect(x + width, y + height, 64, 64)
-
-    def draw_hitbox(self, game, color):
-        pg.draw.rect(game.screen, color, self.hitbox, 2)
-
-class HealthBar():
-    def __init__(self, game, x, y, width=50):
-        self.game = game
-        self.bar = pg.Rect(x, y, width, 10)
-        self.first_time = 0
-
-    def draw_health(self, game, x, y, width=50):
-        self.bar = pg.Rect(x, y, width, 10)
-        self.bar = self.bar.move(self.game.camera.camera.topleft)
-        pg.draw.rect(game.screen, GREEN, self.bar)
-        full = pg.Rect(x, y, 50, 10)
-        full = full.move(self.game.camera.camera.topleft)
-        pg.draw.rect(game.screen, BLACK, full, 2)
-
 class Attack():
     def __init__(self, game, target, weapon):
         sprites = target.sprites()

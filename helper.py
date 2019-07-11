@@ -17,6 +17,10 @@ img_folder = path.join(game_folder, 'resources')
 def vec2int(v):
     return (ceil(v.x), ceil(v.y))
 
+def text_objects(text, font):
+    textSurface = font.render(text, True, BLACK)
+    return textSurface, textSurface.get_rect()
+
 # stuff for breadth first search
 # self.connections = [vec(1,0), vec(-1,0), vec(0,1), vec(0,-1)]
 # self.grid = self.game.grid
