@@ -140,6 +140,36 @@ class TreeTop(TreeBase):
             print('dead')
             self.kill()
 
+class Boulder(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        sprite_init(self, game, y, (game.all_sprites, game.resources, game.obstacles, game.collides), BOULDER_IMG)
+        self.image = self.sprite_sheet.get_image(0, 0, 32, 32, False)
+        self.pos = vec(x, y) * TILESIZE
+        self.rect = self.image.get_rect()
+        self.rect.center = self.pos
+        self.hitbox = self.rect
+        self.hitbox = self.hitbox.inflate(-10, -10)
+        self.hitbox = self.hitbox.move(0, 5)
+
+        self.mined = False
+        self.dropped = False
+        self.health = 100
+        self.last_mined = pg.time.get_ticks()
+
+    def draw_hitbox(self):
+        pg.draw.rect(self.game.screen, YELLOW, self.hitbox, 2)
+        pg.draw.rect(self.game.screen, MADANG, self.rect, 2)
+
+    def update(self):
+        self.game.all_sprites.change_layer(self, self.rect.bottom)
+
+        if self.health <= 0 and not self.dropped:
+            IRock(self.game, self.pos + vec(50, 50))
+            self.mined = True
+            self.dropped = True
+            self.last_mined = pg.time.get_ticks()
+            self.kill()
+
 class Grass(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         sprite_init(self, game, BG_LAYER, (game.all_sprites), None)

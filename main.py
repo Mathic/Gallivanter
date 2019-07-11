@@ -135,16 +135,13 @@ class Game:
                     if draw < 10:
                         Grass(self, col, row)
                     elif draw == 99:
-                        pos = vec(col, row) * TILESIZE
-                        IRock(self, pos)
-                        self.rock_count += 1
+                        Boulder(self, col, row)
 
         self.camera = Camera(self.map.width, self.map.height)
         self.hotbar = Hotbar(self, self.player.pos)
 
         index = self.inventory.add('sword')
         self.hotbar.add_to_hotbar(index, 'sword')
-        self.total_rocks = self.rock_count
 
         # print(self.all_sprites.layers())
         # print(list(self.available_tiles))
@@ -177,14 +174,6 @@ class Game:
             Wolf(self, x_pos, y_pos)
             self.mob_count += 1
 
-        if self.rock_count <= self.total_rocks: # temp rock spawn before cave level
-            index = random.randint(0, len(self.available_tiles) - 1)
-            x_pos = self.available_tiles[index][0]
-            y_pos = self.available_tiles[index][1]
-            pos = vec(x_pos, y_pos) * TILESIZE
-            IRock(self, pos)
-            self.rock_count += 1
-
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
             pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
@@ -196,7 +185,7 @@ class Game:
             sprite.draw_hitbox()
             if sprite.melee != None:
                 sprite.melee.draw_hitbox(self, DARKGREY)
-        if hasattr(sprite, 'draw_hitbox') and type(sprite).__name__ == 'TreeBottom':
+        if hasattr(sprite, 'draw_hitbox') and (type(sprite).__name__ == 'TreeBottom' or type(sprite).__name__ == 'Boulder'):
             sprite.draw_hitbox()
         if hasattr(sprite, 'melee') and type(sprite).__name__ != 'Player':
             if hasattr(sprite.melee, 'draw_hitbox') and sprite.melee != None:
@@ -207,7 +196,7 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            # self.draw_hitboxes(sprite)
+            self.draw_hitboxes(sprite)
             if hasattr(sprite, 'health_bar'):
                 if sprite.health < 100:
                     sprite.health_bar.draw_health(self, sprite.pos.x, sprite.pos.y, (sprite.health / sprite.starting_health) * 50)

@@ -104,6 +104,8 @@ PINE_IMG = 'pine_tree.png'
 BIRCH_IMG = 'birch_tree.png'
 MAPLE_IMG = 'maple_tree.png'
 
+BOULDER_IMG = 'boulder.png'
+
 TREE_GROW_TIME = 180000
 
 # Background image

@@ -46,7 +46,12 @@ class Attack():
                         play_sound(WOOD_CHOP[index])
                         Axe(self.game, self.game.player.pos, dir, self.game.player.facing, width, height)
                         target.health -= 25
-                    if type(target).__name__ == 'Wolf':
+                    elif type(target).__name__ == 'Boulder' and not target.mined:
+                        index = random.randint(0, len(ROCK_MINE) - 1)
+                        play_sound(ROCK_MINE[index])
+                        Pickaxe(self.game, self.game.player.pos, dir, self.game.player.facing, width, height)
+                        target.health -= 25
+                    elif type(target).__name__ == 'Wolf':
                         target.health -= 25
                         if target.health <= 0: # number should be weapon damage
                             play_sound(WOLF_WHINE, 1)
@@ -70,10 +75,5 @@ class Pickup():
                 if not pickup.in_inventory:
                     index = game.inventory.add(pickup.item_name)
                     game.hotbar.add_to_hotbar(index, pickup.item_name)
-                    if pickup.item_name == 'rock': # temp rock spawn before cave level
-                        game.rock_count -= 1
-                        index = random.randint(0, len(ROCK_MINE) - 1)
-                        play_sound(ROCK_MINE[index])
-                    else:
-                        play_sound(PICKUP_SOUND)
+                    play_sound(PICKUP_SOUND)
                     pickup.kill()
